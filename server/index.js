@@ -4,6 +4,12 @@ var multer = require('multer');
 var path = require('path');
 var fs = require('fs');
 const cors = require('cors');
+// Import Items Class
+const Items = require('./items.js');
+
+// Initiate Items Class
+const itemHandler = new Items("http://localhost");
+ 
 
 // Initiate Express App
 var app = express();
@@ -56,7 +62,13 @@ router.get('/delete', function (req, res, next) {
 // Ping route
 router.get('/ping', function (req, res, next) {
     console.log("Router Working");
-    res.send('Pong');
+    res.send('Pong, pong.. ');
+    res.end();
+})
+
+router.get('/items', function (req, res, next) {
+    console.log("Router Working");
+    console.log(itemHandler.fetchItems());
     res.end();
 })
 
