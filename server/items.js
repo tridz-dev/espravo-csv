@@ -15,15 +15,15 @@ class Items {
         //total pages calculated to fetch all data
         let product_promises = Array.apply(null, { length: total_pages })
           .map((data, ind) => {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
               axios.get(`${this.base_url}/api/products/vendor?page=${ind}&items_per_page=500`)
                 .then(res => {
                   let data = res?.data?.rows
                   resolve(data)
                 })
                 .catch(err => {
-                  if (ind == 1)
-                    console.log("error in response", err)
+                  reject(err)
+                  console.log("error in response", err)
                 })
             });
           })
@@ -36,6 +36,9 @@ class Items {
               if (err) throw err;
               console.log('Data written to file');
             })
+          })
+          .catch(err => {
+            console.log("error in fetch data", err)
           })
       })
       .catch(error => {
