@@ -7,6 +7,8 @@ import Title from "./global/page/title";
 function UploadWidget() {
   const [file, setFile] = useState(null);
   const [uploaded, setUploaded] = useState(null);
+  const [migrated, setMigrated] = useState(null);
+  const [rerun, setReRun] = useState(false);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -15,11 +17,22 @@ function UploadWidget() {
 
   const clearFile = () => {
     console.log(file);
-      
+
     console.log("cleared");
     console.log(file);
   };
-
+  const ReRunFailed = () => {
+    axios
+      .get("http://localhost:3000/rerun")
+      .then((res) => {
+        setReRun(true)
+        console.log(res.data);
+      })
+      .catch((err) => {
+        // setUploaded(-1);
+        console.error(err);
+      });
+  }
   const deleteFile = () => {
     // console.log(file);
     // setFile(null);
@@ -56,17 +69,14 @@ function UploadWidget() {
   };
 
   const migrateFile = () => {
-    const formData = new FormData();
-    formData.append("jsonFile", file);
-
     axios
-      .post("http://localhost:3000/upload", formData)
+      .get("http://localhost:3000/migrate")
       .then((res) => {
-        setUploaded(1);
+        setMigrated(1);
         console.log(res.data);
       })
       .catch((err) => {
-        setUploaded(-1);
+        setMigrated(-1);
         console.error(err);
       });
   };
@@ -83,20 +93,20 @@ function UploadWidget() {
               <div className="w-5/8 p-4 text-slate-700 text-sm mt-4 px-8">
                 {file ? file.name : null}
                 {uploaded ? //   delete // <button className="underline pl-2 text-blue-500 border-slate-400 pb-1">
-                // </button>
-                null : (
-                  <span>
-                    {/* <button className="underline pl-2 text-blue-500 border-slate-400 pb-1">
+                  // </button>
+                  null : (
+                    <span>
+                      {/* <button className="underline pl-2 text-blue-500 border-slate-400 pb-1">
                       upload
                     </button> */}
-                    <button
-                      onClick={clearFile}
-                      className="underline pl-2 text-blue-500 border-slate-400 pb-1"
-                    >
-                      clear
-                    </button>
-                  </span>
-                )}
+                      <button
+                        onClick={clearFile}
+                        className="underline pl-2 text-blue-500 border-slate-400 pb-1"
+                      >
+                        clear
+                      </button>
+                    </span>
+                  )}
               </div>
             </div>
 
@@ -111,23 +121,23 @@ function UploadWidget() {
               </button>
             ) : (
               <div className="flex mt-8">
-              
-             
-              <button
-                className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-                onClick={migrateFile}
-                title="Abort data migration and delete data from the server."
-              >
-                Migrate Data
-              </button>
-              <button
-                className="relative inline-flex h-9 items-center  px-4 py-1 text-sm font-medium text-red-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-                onClick={deleteFile}
-                title="Migrate data from the uploaded file to the E-commerce backend."
-              >
-                Abort & Delete
-              </button>
-              
+
+
+                <button
+                  className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                  onClick={migrateFile}
+                  title="Migrate data from the uploaded file to the E-commerce backend."
+                >
+                  Migrate Data
+                </button>
+                <button
+                  className="relative inline-flex h-9 items-center  px-4 py-1 text-sm font-medium text-red-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                  onClick={deleteFile}
+                  title="Abort data migration and delete data from the server."
+                >
+                  Abort & Delete
+                </button>
+
               </div>
             )}
 
