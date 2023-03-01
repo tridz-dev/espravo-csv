@@ -15,90 +15,117 @@ class Migrate {
     constructor(name) {
         // Read the contents of the JSON file
         const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
-
+        const progress = fs.readFileSync("progress.txt", 'utf-8')
         // Parse the JSON data into a JavaScript object
         this.csv = JSON.parse(jsonData);
         this.base_url = "http://espfarnew.tridz.in";
         this.path = 'products/'
         this.final = []
+        this.progress_text = progress
     }
     async UpdateDisable() {
         console.log("success")
+        let items_per_page = 500
         axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`)
             .then(response => {
-                let total_pages = Math.ceil(response.data.pager?.total_items / 500)
+                let total_pages = Math.ceil(response.data.pager?.total_items / items_per_page)
+                let total_product = response.data.pager?.total_items
+                // let total_pages = 5
+                // let total_product = 50
                 // console.log(`total pages ${total_pages}`)
                 // total pages calculated to fetch all data
+                fs.writeFileSync("looplength.json", `${total_product}`)
                 let product_promises = Array.apply(null, { length: total_pages })
                     .map((data, ind) => {
                         return new Promise((resolve, reject) => {
-                            axios.get(`${API_URL}/api/products/vendor?page=${ind}&items_per_page=500`)
-                                .then(res => {
-                                    let data = res?.data?.rows
-                                    let single_loop = data.map((single, index) => {
-                                        return new Promise((resolve1, reject1) => {
-                                            // Checking csv for the product
-                                            let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku)
-                                            let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku)
-                                            if (find.length) {
-                                                fs.writeFileSync(PROGRESS_FILE, `${ind},${index + 1}\n`);
-                                                // if found update product in backend
-                                                this.Update(single, find[0])
-                                                    .then(res => {
-                                                        this.csv.splice(findIndex, 1)
-                                                        fs.appendFileSync(SUCCESS_FILE, `success in ${ind},${index + 1}\n`);
-                                                    })
-                                                    .catch(err => {
-                                                        fs.appendFileSync(FAILED_FILE, `${ind},${index + 1}\n`);
-                                                        // console.log("call error in update is", err)
-                                                    })
-                                                    .finally(res => {
-                                                        resolve1(`${ind},${index + 1} done`)
-                                                    })
-                                            }
-                                            else {
-                                                // else disable product in backend
-                                                fs.writeFileSync(PROGRESS_FILE, `${ind},${index + 1}\n`);
-                                                this.Disable(single)
-                                                    .then(res => {
-                                                        fs.appendFileSync(SUCCESS_FILE, `success in ${ind},${index + 1}\n`);
-                                                        this.csv.splice(findIndex, 1)
-                                                    })
-                                                    .catch(err => {
-                                                        // console.log("call error in disable is", err)
-                                                        fs.appendFileSync(FAILED_FILE, `${ind},${index + 1}\n`);
-                                                    })
-                                                    .finally(res => {
-                                                        resolve1(`${ind},${index + 1} done`)
-                                                    })
-                                            }
+                            let split = this.progress_text.split(",")
+                            if (split.length > 1 || split[0] <= ind) {
+                                console.log("skipped", ind)
+                                resolve(1)
+                            }
+                            else {
+                                axios.get(`${API_URL}/api/products/vendor?page=${ind}&items_per_page=${items_per_page}`)
+                                    .then(res => {
+                                        let data = res?.data?.rows
+                                        let single_loop = data.map((single, index) => {
+                                            return new Promise((resolve1, reject1) => {
+                                                // Checking csv for the product
+                                                let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku)
+                                                let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku)
+                                                if (find.length) {
+                                                    fs.writeFile(PROGRESS_FILE, `${ind},${index + 1}`, (err) => {
+                                                        if (err)
+                                                            console.error(`error in writing progress ${err})`)
+                                                    });
+                                                    // if found update product in backend
+                                                    this.Update(single, find[0])
+                                                        .then(res => {
+                                                            this.csv.splice(findIndex, 1)
+                                                            fs.appendFileSync(SUCCESS_FILE, `success in ${ind},${index + 1}\n`);
+                                                        })
+                                                        .catch(err => {
+                                                            fs.appendFileSync(FAILED_FILE, `${ind},${index + 1}\n`);
+                                                            // console.log("call error in update is", err)
+                                                        })
+                                                        .finally(res => {
+                                                            resolve1(`${ind},${index + 1} done`)
+                                                        })
+                                                }
+                                                else {
+                                                    // else disable product in backend
+                                                    fs.writeFile(PROGRESS_FILE, `${ind},${index + 1}`, (err) => {
+                                                        if (err)
+                                                            console.error(`error in writing progress ${err})`)
+                                                    });
+                                                    this.Disable(single)
+                                                        .then(res => {
+                                                            fs.appendFileSync(SUCCESS_FILE, `success in ${ind},${index + 1}\n`);
+                                                            this.csv.splice(findIndex, 1)
+                                                        })
+                                                        .catch(err => {
+                                                            // console.log("call error in disable is", err)
+                                                            fs.appendFileSync(FAILED_FILE, `${ind},${index + 1}\n`);
+                                                        })
+                                                        .finally(res => {
+                                                            resolve1(`${ind},${index + 1} done`)
+                                                        })
+                                                }
+                                            })
                                         })
+                                        Promise.all(single_loop)
+                                            .then(resolved => {
+                                                console.log("Single loop completed")
+                                                resolve(resolved)
+                                            })
+                                            .catch(err => {
+                                                console.log("Error in single loop completed", err)
+                                            })
                                     })
-                                    Promise.all(single_loop)
-                                        .then(resolved => {
-                                            console.log("Single loop completed")
-                                            resolve(resolved)
-                                        })
-                                        .catch(err => {
-                                            console.log("Error in single loop completed",err)
-                                        })
-                                })
-                                .catch(err => {
-                                    reject(err)
-                                    console.log("error in response", err)
-                                    // return err
-                                })
+                                    .catch(err => {
+                                        reject(err)
+                                        console.log("error in response", err)
+                                        // return err
+                                    })
+                            }
                         });
                     })
                 Promise.all(product_promises)
                     .then(resp => {
                         //Adding remaining product from csv to backend After API loop completed
                         console.log("loop completed remaining length", this.csv.length)
+                        fs.writeFileSync("csvlength.json", `${this.csv.length}`)
                         try {
                             let errorIndex = 0
+                            fs.writeFile(PROGRESS_FILE, `1`, (err) => {
+                                if (err)
+                                    console.error(`error in writing progress ${err})`)
+                            });
                             let complete = this.csv.map((data, index) => {
                                 return new Promise((resolve1, reject1) => {
-                                    fs.writeFileSync(PROGRESS_FILE, `${index + 1}\n`);
+                                    fs.writeFile(PROGRESS_FILE, `${index + 1}`, (err) => {
+                                        if (err)
+                                            console.error(`error in writing progress ${err})`)
+                                    });
                                     this.Create(data)
                                         .then(res => {
                                             fs.appendFileSync(SUCCESS_FILE, `${index + 1}\n`);
@@ -118,6 +145,7 @@ class Migrate {
                             })
                             Promise.all(complete)
                                 .then((final) => {
+                                    console.log("migrate process completed")
                                     return "completed"
                                 })
                                 .catch(err => {

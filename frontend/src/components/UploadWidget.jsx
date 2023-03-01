@@ -1,14 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { IconFileSpreadsheet } from "@tabler/icons";
 import Title from "./global/page/title";
 // import Upload from "../pages/Upload";
-
+const API_URL = "http://espfarnew.tridz.in"
 function UploadWidget() {
   const [file, setFile] = useState(null);
   const [uploaded, setUploaded] = useState(null);
   const [migrated, setMigrated] = useState(null);
+  const [createStart, setCreateStart] = useState(null);
   const [rerun, setReRun] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [total, setTotal] = useState(0);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -68,19 +71,98 @@ function UploadWidget() {
       });
   };
 
+  const Progress_check = () => {
+    var interval = setInterval(async () => {
+      console.log("calling migration")
+      axios.get("http://localhost:3000/progress")
+        .then(res => {
+          let progress
+          const data = res.data
+          console.log("migration progress is", data)
+          let progress_data = data.data.includes(",") ? "loop" : "csv"
+          console.log("migration progress with", progress_data)
+          if (progress_data === "csv") {
+            if (data.csv == "0") {
+              console.log("migration is 0 with interval id", interval)
+              progress = 100
+              setProgress(progress)
+              clearInterval(interval);
+              setMigrated(2)
+            }
+            else {
+              progress = ((Number(data.data) / Number(data.csv)) * 50) + 50
+              setProgress(progress)
+            }
+          }
+          else {
+            let split = data.data.split(",")
+            progress = (((Number(split[0]) + 1) * Number(split[1])) / Number(data.loop)) * 50
+            setProgress(progress)
+          }
+          if (progress == 100) {
+            clearInterval(interval);
+            setMigrated(2)
+          }
+        })
+        .catch(err => {
+          console.log("migration progress error", err)
+        })
+    }, 5000)
+  }
+
   const migrateFile = () => {
-    axios
-      .get("http://localhost:3000/migrate")
-      .then((res) => {
-        setMigrated(1);
-        console.log(res.data);
+    setProgress(0)
+    setMigrated(0)
+    axios.get("http://localhost:3000/migrate")
+      .then(res => {
+        setMigrated(1)
+        Progress_check()
       })
-      .catch((err) => {
-        setMigrated(-1);
-        console.error(err);
-      });
+      .catch(err => {
+        setMigrated(0)
+      })
   };
 
+  // useEffect(() => {
+  //   if (migrated === 1)
+  //     setTimeout(() => {
+  //       console.log("calling migration")
+  //       axios.get("http://localhost:3000/progress")
+  //         .then(res => {
+  //           const data = res.data
+  //           console.log("migration progress is", data)
+  //           let progress_data = data.data.includes(",") ? "loop" : "csv"
+  //           console.log("migration progress with", progress_data)
+  //           if (progress_data === "csv") {
+  //             let progress = ((Number(data.data) / Number(data.csv)) * 50) + 50
+  //             setProgress(progress)
+  //           }
+  //           else {
+  //             let split = data.data.split(",")
+  //             let progress = (((Number(split[0]) + 1) * Number(split[1])) / Number(data.loop)) * 50
+  //             setProgress(progress)
+  //           }
+  //         })
+  //         .catch(err => {
+  //           console.log("migration progress error", err)
+  //         })
+  //     }, 5000)
+  //   else if (migrated == 0) {
+  //     setProgress(0)
+  //   }
+  //   console.log("migration change", migrated)
+  // }, [migrated])
+
+  useEffect(() => {
+    if (createStart === 1) {
+      setTimeout(() => {
+
+      }, 5000)
+    }
+    else {
+
+    }
+  }, [createStart])
   const Upload = () => {
     return (
       <div>
@@ -137,7 +219,15 @@ function UploadWidget() {
                 >
                   Abort & Delete
                 </button>
-
+                {migrated === 1 ? <p className="progress-bar">
+                  <div className="" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)`, width: "100px", height: "20px" }} />
+                  {progress}% completed
+                </p> :
+                  <p className="progress-bar">
+                    <div className="" style={{ background: `green`, width: "100px", height: "20px" }} />
+                    Completed
+                  </p>
+                }
               </div>
             )}
 

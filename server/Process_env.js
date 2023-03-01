@@ -6,6 +6,7 @@ const API_URL = 'http://espfarnew.tridz.in/api/product/create';
 const CHUNK_SIZE = 50;
 const PROGRESS_FILE = 'progress.txt';
 const FAILED_FILE = 'failed.txt';
+const API_error = 'error.txt'
 const file_path = "uploads/csv/current.csv"
 class Process {
     async processCsv(filePath) {
@@ -30,8 +31,9 @@ class Process {
         console.log("numbers", chunkIndex, lineNumber)
         let chunkStart = 0;
         let chunkEnd = CHUNK_SIZE;
-        const stream = fs.createReadStream(`${file_path}`);
-        const csvStream = csv.parse({ headers: true }).on("data", async function (data) {
+        const stream = fs.createReadStream(`${file_path}`, 'utf-8');
+        let start = (chunkIndex + 1) * (lineNumber + 1)
+        const csvStream = csv.parseStream(stream, { headers: true, fromLine: start }).on("data", async function (data) {
             if (lineNumber >= chunkEnd) {
                 chunkIndex++;
                 chunkStart = chunkEnd;
@@ -70,12 +72,17 @@ class Process {
                         "weight": ""
                     }
                 }
-                if (lineNumber == 0)
-                    console.log("request data", datas)
-                const response = await axios.post(API_URL, datas)
-                console.log(`Line ${lineNumber + 1} of chunk ${chunkIndex} successfully processed`);
-                // Update the progress file with the current chunk and line number
-                fs.writeFileSync(PROGRESS_FILE, `${chunkIndex},${lineNumber + 1}\n`);
+                axios.post(API_URL, datas)
+                    .then(resp => {
+                        // Update the progress file with the current chunk and line number
+                        fs.writeFileSync(PROGRESS_FILE, `${chunkIndex},${lineNumber + 1}\n`);
+                        console.log(`Line ${lineNumber + 1} of chunk ${chunkIndex} successfully processed`);
+                    })
+                    .catch(err => {
+                        fs.appendFileSync(API_error, `error on ${data.ITEM_NUMBER}:-${err.response.data}\n`);
+                        throw err.response.data
+                    })
+
             } catch (error) {
                 // console.error(`Line ${lineNumber + 1} of chunk ${chunkIndex} failed with error: ${error.message}`);
                 // Write the failed line number to the failed file
@@ -88,7 +95,7 @@ class Process {
             lineNumber++;
         }).on("end", function () {
             console.log("CSV file successfully processed");
-
+            return true
         });
 
         stream.pipe(csvStream);

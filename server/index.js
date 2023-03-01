@@ -9,9 +9,7 @@ const Items = require('./items.js');
 
 // Initiate Items Class
 const itemHandler = new Items("http://localhost");
-const Process = require("./Process_env")
-const Process_env = new Process("http://localhost")
-const ReRun  = require("./rerun_failed")
+const ReRun = require("./rerun_failed")
 const RerunFailed = new ReRun("http://localhost")
 
 // Initiate Express App
@@ -39,29 +37,95 @@ const storage = multer.diskStorage({
     // cb(null, file.originalname + '-' + timestamp + path.extname(file.originalname));
   }
 });
-const upload = multer({ storage });
+const csv = require('fast-csv');
+const upload = multer({ storage: multer.memoryStorage() });
 app.post('/upload', upload.single('jsonFile'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('No file was uploaded.');
   }
-  res.send(`File was uploaded successfully to ${req.file.path}`);
+  const csvData = req.file.buffer.toString();
+  const jsonData = [];
+  csv.parseString(csvData, { headers: true })
+    .on('data', (row) => {
+      jsonData.push(row);
+    })
+    .on('end', () => {
+      fs.writeFile(`${upload_dir}output.json`, JSON.stringify(jsonData, null, 2), (err) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send('Error while saving file');
+        } else {
+          res.send(`File was uploaded successfully to ${req.file.path}`);
+        }
+      });
+    });
 });
-
-app.get('/migrate', (req, res) => {
+const Migrate = require("./uploads/process/migrate")
+const MigrateProcess = new Migrate("http://localhost")
+app.get('/migrate', async (req, res) => {
   if (!req) {
     return res.status(400).send('No file migrated.');
   }
-  Process_env.processCsv()
-  res.send("File is spliting")
+  try {
+    const data = MigrateProcess.UpdateDisable()
+  } catch (error) {
+    console.error("error is", error)
+    res.status(500).send(error);
+  }
+  res.send("Successfull")
 })
+const Process = require("./uploads/process/progress")
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+router.post("/process", (req, res) => {
+  try {
+    Process.UpdateDisable(req.body)
+      .then(response => {
+        res.send(`done`)
+      })
+      .catch(err => {
+        res.sendStatus(500);
+      })
+  }
+  catch (error) {
 
-app.get('/rerun',(req,res)=>{
-  if(!req){
+  }
+})
+const AddProduct = require("./uploads/process/add_product")
+const ProductAdd = new AddProduct("http://localhost")
+app.get("/add_products", (req, res) => {
+  if (!req)
+    res.status(500).send("Something went wrong")
+  try {
+    const data = ProductAdd.CreateProcess()
+    res.send("done")
+  }
+  catch (err) {
+
+  }
+})
+app.get("/progress", (req, res) => {
+  let loop = fs.readFileSync("looplength.json", "utf-8")
+  let csv = fs.readFileSync("csvlength.json", "utf-8")
+  let final = { "loop": loop, "csv": csv }
+  fs.readFile("progress.txt", "utf-8", (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error reading data file');
+    } else {
+      console.log("progress data is", data)
+      const final = { "loop": loop, "csv": csv, "data": data }
+      res.json(final);
+    }
+  })
+})
+app.get('/rerun', (req, res) => {
+  if (!req) {
     return res.status(400).send('No file was uploaded.');
   }
 
 })
-
 const API_URL = 'http://espfarnew.tridz.in/api/product/create';
 const axios = require("axios")
 app.get("/single_upload", (req, res) => {
@@ -111,7 +175,7 @@ app.get("/single_upload", (req, res) => {
 })
 
 router.get('/delete', function (req, res, next) {
-  let delete_path = `${upload_dir}${csv_name}`;
+  let delete_path = `${upload_dir}output.json`;
   fs.unlink(delete_path, (err) => {
     if (err) {
       console.log(err);
@@ -120,14 +184,6 @@ router.get('/delete', function (req, res, next) {
     res.send('File deleted successfully');
   });
 
-})
-
-
-// Ping route
-router.get('/ping', function (req, res, next) {
-  console.log("Router Working");
-  res.send('Pong, pong.. ');
-  res.end();
 })
 
 router.get('/items', function (req, res, next) {
