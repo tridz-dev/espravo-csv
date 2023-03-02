@@ -3,16 +3,19 @@ import axios from "axios";
 import { IconFileSpreadsheet } from "@tabler/icons";
 import Title from "./global/page/title";
 // import Upload from "../pages/Upload";
-const API_URL = "http://espfarnew.tridz.in"
+const API_URL = "http://localhost:3000"
 function UploadWidget() {
   const [file, setFile] = useState(null);
+  const [intervalId, setIntervalId] = useState([]);
   const [uploaded, setUploaded] = useState(null);
   const [migrated, setMigrated] = useState(null);
-  const [createStart, setCreateStart] = useState(null);
+  const [migrate_stage, setMigrateStage] = useState("initial");
   const [rerun, setReRun] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [pause, setPause] = useState(false)
+  const [restart, setRestart] = useState(false)
   const [total, setTotal] = useState(0);
-
+  let interval
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     console.log(file);
@@ -26,7 +29,7 @@ function UploadWidget() {
   };
   const ReRunFailed = () => {
     axios
-      .get("http://localhost:3000/rerun")
+      .get(API_URL + "/rerun")
       .then((res) => {
         setReRun(true)
         console.log(res.data);
@@ -43,7 +46,7 @@ function UploadWidget() {
     // console.log("deleted");
     // console.log(file);
     axios
-      .get("http://localhost:3000/delete")
+      .get(API_URL + "/delete")
       .then((res) => {
         setFile(null);
         console.log(res.data);
@@ -60,7 +63,7 @@ function UploadWidget() {
     formData.append("jsonFile", file);
 
     axios
-      .post("http://localhost:3000/upload", formData)
+      .post(API_URL + "/upload", formData)
       .then((res) => {
         setUploaded(1);
         console.log(res.data);
@@ -71,98 +74,95 @@ function UploadWidget() {
       });
   };
 
-  const Progress_check = () => {
-    var interval = setInterval(async () => {
-      console.log("calling migration")
-      axios.get("http://localhost:3000/progress")
+  const Progress_check = async () => {
+    interval = setInterval(() => {
+      console.log("calling migration", interval, "as")
+      axios.get(API_URL + "/progress")
         .then(res => {
-          let progress
-          const data = res.data
-          console.log("migration progress is", data)
-          let progress_data = data.data.includes(",") ? "loop" : "csv"
-          console.log("migration progress with", progress_data)
-          if (progress_data === "csv") {
-            if (data.csv == "0") {
-              console.log("migration is 0 with interval id", interval)
-              progress = 100
-              setProgress(progress)
-              clearInterval(interval);
-              setMigrated(2)
-            }
-            else {
-              progress = ((Number(data.data) / Number(data.csv)) * 50) + 50
-              setProgress(progress)
-            }
+          console.log("getting migration progress", res.data, "of type", typeof res.data)
+          setProgress(res.data)
+          if (res.data == 100) {
+            clearIntervals(intervalId)
+            interval = 0
+            console.log("migration progress fetch is stoping")
           }
           else {
-            let split = data.data.split(",")
-            progress = (((Number(split[0]) + 1) * Number(split[1])) / Number(data.loop)) * 50
-            setProgress(progress)
-          }
-          if (progress == 100) {
-            clearInterval(interval);
-            setMigrated(2)
+
           }
         })
         .catch(err => {
           console.log("migration progress error", err)
         })
     }, 5000)
+    setIntervals(interval)
   }
 
   const migrateFile = () => {
     setProgress(0)
-    setMigrated(0)
-    axios.get("http://localhost:3000/migrate")
+    setMigrated(1)
+    setMigrateStage("start")
+    axios.get(API_URL + "/migrate")
       .then(res => {
-        setMigrated(1)
         Progress_check()
       })
       .catch(err => {
-        setMigrated(0)
+        console.log("error in", err)
       })
   };
-
-  // useEffect(() => {
-  //   if (migrated === 1)
-  //     setTimeout(() => {
-  //       console.log("calling migration")
-  //       axios.get("http://localhost:3000/progress")
-  //         .then(res => {
-  //           const data = res.data
-  //           console.log("migration progress is", data)
-  //           let progress_data = data.data.includes(",") ? "loop" : "csv"
-  //           console.log("migration progress with", progress_data)
-  //           if (progress_data === "csv") {
-  //             let progress = ((Number(data.data) / Number(data.csv)) * 50) + 50
-  //             setProgress(progress)
-  //           }
-  //           else {
-  //             let split = data.data.split(",")
-  //             let progress = (((Number(split[0]) + 1) * Number(split[1])) / Number(data.loop)) * 50
-  //             setProgress(progress)
-  //           }
-  //         })
-  //         .catch(err => {
-  //           console.log("migration progress error", err)
-  //         })
-  //     }, 5000)
-  //   else if (migrated == 0) {
-  //     setProgress(0)
-  //   }
-  //   console.log("migration change", migrated)
-  // }, [migrated])
-
   useEffect(() => {
-    if (createStart === 1) {
-      setTimeout(() => {
-
-      }, 5000)
+    return () => {
+      clearIntervals(intervalId);
+      interval = 0
     }
-    else {
 
+  }, [])
+  useEffect(() => {
+    console.log("migration change", migrated)
+  }, [migrated])
+  const PauseMigrate = () => {
+    axios.get(API_URL + "/pause_migrate")
+      .then(res => {
+        clearIntervals(intervalId)
+      })
+      .catch(err => {
+        console.log("error in", err)
+      })
+    setMigrateStage("pause")
+    setPause(true)
+  }
+  const RestartMigrate = () => {
+    setPause(false)
+    migrateFile()
+    setMigrateStage("start")
+  }
+  const setIntervals = (id) => {
+    let intervalArray = intervalId
+    const find = intervalId.find(x => x === id);
+    if (!find) {
+      intervalArray.push(id)
+      setIntervalId(intervalArray)
     }
-  }, [createStart])
+  }
+  const clearIntervals = (intervalIds) => {
+    intervalIds.map(interval => {
+      clearInterval(interval)
+    })
+  }
+  const AbortMigrate = () => {
+    console.log("aborting migration")
+    setMigrated(0)
+    clearIntervals(intervalId)
+    interval = 0
+    axios.get(API_URL + "/abort_migrate")
+      .then(res => {
+        clearIntervals(intervalId)
+      })
+      .catch(err => {
+        console.log("error in", err)
+      })
+    setMigrateStage("stop")
+  }
+
   const Upload = () => {
     return (
       <div>
@@ -203,30 +203,63 @@ function UploadWidget() {
               </button>
             ) : (
               <div className="flex mt-8">
-
-
-                <button
-                  className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-                  onClick={migrateFile}
-                  title="Migrate data from the uploaded file to the E-commerce backend."
-                >
-                  Migrate Data
-                </button>
-                <button
-                  className="relative inline-flex h-9 items-center  px-4 py-1 text-sm font-medium text-red-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-                  onClick={deleteFile}
-                  title="Abort data migration and delete data from the server."
-                >
-                  Abort & Delete
-                </button>
-                {migrated === 1 ? <p className="progress-bar">
-                  <div className="" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)`, width: "100px", height: "20px" }} />
-                  {progress}% completed
+                {migrate_stage == "stop" || migrate_stage == "initial" ? < div className="">
+                  <button
+                    className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                    onClick={migrateFile}
+                    title="Migrate data from the uploaded file to the E-commerce backend."
+                  >
+                    Migrate Data
+                  </button>
+                  <button
+                    className="relative inline-flex h-9 items-center  px-4 py-1 text-sm font-medium text-red-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                    onClick={deleteFile}
+                    title="Abort data migration and delete data from the server."
+                  >
+                    Abort & Delete
+                  </button>
+                </div> : ""}
+                {migrate_stage === "pause" || migrate_stage === "start" ? <p className="progress-bar">
+                  {migrate_stage == "pause" ?
+                    <div>
+                      <button
+                        className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                        onClick={RestartMigrate}
+                        title="Migrate data from the uploaded file to the E-commerce backend."
+                      >
+                        Restart
+                      </button>
+                      <button
+                        className="relative inline-flex h-9 items-center  px-4 py-1 text-sm font-medium text-red-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                        onClick={() => AbortMigrate()}
+                        title="Abort data migration"
+                      >
+                        Abort
+                      </button>
+                      <div className="" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)`, width: "100px", height: "20px" }} />
+                      {progress}% completed
+                    </div> :
+                    <div>
+                      <button
+                        className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                        onClick={PauseMigrate}
+                        title="Migrate data from the uploaded file to the E-commerce backend."
+                      >
+                        Pause
+                      </button>
+                      <button
+                        className="relative inline-flex h-9 items-center  px-4 py-1 text-sm font-medium text-red-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                        onClick={() => AbortMigrate()}
+                        title="Abort data migration"
+                      >
+                        Abort
+                      </button>
+                      <div className="my-2" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)`, width: "100px", height: "20px" }} />
+                      {progress}% completed
+                    </div>
+                  }
                 </p> :
-                  <p className="progress-bar">
-                    <div className="" style={{ background: `green`, width: "100px", height: "20px" }} />
-                    Completed
-                  </p>
+                  ""
                 }
               </div>
             )}
@@ -244,8 +277,9 @@ function UploadWidget() {
               Upload
             </button>
           </div>
-        )}
-      </div>
+        )
+        }
+      </div >
       // `<div>
       //   <div className="flex min-h-[400px] flex-col items-center justify-center rounded-md border border-dashed p-8 text-center animate-in fade-in-50 ml-1 mr-4">
       //     <div className="mx-auto flex max-w-[420px] flex-col items-center justify-center text-center">

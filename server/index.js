@@ -4,6 +4,8 @@ var multer = require('multer');
 var path = require('path');
 var fs = require('fs');
 const cors = require('cors');
+const EventEmitter = require('events');
+
 // Import Items Class
 const Items = require('./items.js');
 
@@ -60,13 +62,17 @@ app.post('/upload', upload.single('jsonFile'), (req, res) => {
       });
     });
 });
+
 const Migrate = require("./uploads/process/migrate")
 const MigrateProcess = new Migrate("http://localhost")
 app.get('/migrate', async (req, res) => {
+  stopProcess = false;
   if (!req) {
     return res.status(400).send('No file migrated.');
   }
   try {
+    // Start the long-running process
+    MigrateProcess.shouldStop = false;
     const data = MigrateProcess.UpdateDisable()
   } catch (error) {
     console.error("error is", error)
@@ -92,19 +98,19 @@ router.post("/process", (req, res) => {
 
   }
 })
-const AddProduct = require("./uploads/process/add_product")
-const ProductAdd = new AddProduct("http://localhost")
-app.get("/add_products", (req, res) => {
-  if (!req)
-    res.status(500).send("Something went wrong")
-  try {
-    const data = ProductAdd.CreateProcess()
-    res.send("done")
-  }
-  catch (err) {
-
-  }
+app.get("/abort_migrate", (req, res) => {
+  fs.writeFile("progress.txt", "", (err) => {
+    if (err) throw err;
+    MigrateProcess.shouldStop = false;
+    res.json("Aborted")
+  })
 })
+app.get("/pause_migrate", (req, res) => {
+  MigrateProcess.shouldStop = false;
+  res.json("Aborted")
+})
+
+
 app.get("/progress", (req, res) => {
   let loop = fs.readFileSync("looplength.json", "utf-8")
   let csv = fs.readFileSync("csvlength.json", "utf-8")
@@ -114,9 +120,25 @@ app.get("/progress", (req, res) => {
       console.error(err);
       res.status(500).send('Error reading data file');
     } else {
-      console.log("progress data is", data)
       const final = { "loop": loop, "csv": csv, "data": data }
-      res.json(final);
+      console.log("progress test", final)
+      let progress
+      let progress_data = final.data.includes(",") ? "loop" : "csv"
+      if (progress_data === "csv") {
+        if (final.csv == "0") {
+          progress = 100
+          res.json(progress)
+        }
+        else {
+          progress = ((Number(final.data) / Number(final.csv)) * 50) + 50
+          res.json(progress);
+        }
+      }
+      else {
+        let split = final.data.split(",")
+        progress = (((Number(split[0]) + 1) * Number(split[1])) / Number(final.loop)) * 50
+        res.json(progress);
+      }
     }
   })
 })
@@ -125,53 +147,6 @@ app.get('/rerun', (req, res) => {
     return res.status(400).send('No file was uploaded.');
   }
 
-})
-const API_URL = 'http://espfarnew.tridz.in/api/product/create';
-const axios = require("axios")
-app.get("/single_upload", (req, res) => {
-  if (!req) {
-    return res.status(400).send('No file was uploaded.');
-  }
-  let datas = {
-    "product_name": "Product5",
-    "sku": "1234",
-    "weight": 200,
-    "data": {
-      "price": "100",
-      "vendor": "Tridz",
-      "artist": ["Eminem", "BigB", "Islo"],
-      "available": 2,
-      "collections": ["Paris Art", "French Modern"],
-      "colour": "Black",
-      "custom_filters": "Mega Filter",
-      "favourite": 1,
-      "image_id": 2546,
-      "image_type": 2,
-      "keyword": ["Featured", "Top 10", "Trending"],
-      "max_height": 250,
-      "max_width": 250,
-      "orientation": "Landscape",
-      "publisher_id": 1562,
-      "publisher_name": "Penguin",
-      "media": "",
-      "weight": ""
-    }
-  }
-  try {
-    axios.post(API_URL, datas)
-      .then(res => {
-        console.log("response detected", res.data)
-      })
-      .catch(err => {
-        console.error("error on axios", err)
-      })
-  }
-  catch (error) {
-    console.error("response failed", error)
-  }
-  // let final = response.json()
-  // console.log("final response", final)
-  res.send("upload success")
 })
 
 router.get('/delete', function (req, res, next) {
