@@ -3,7 +3,7 @@ import axios from "axios";
 import { IconFileSpreadsheet } from "@tabler/icons";
 import Title from "./global/page/title";
 // import Upload from "../pages/Upload";
-const API_URL = "http://localhost:3000"
+const API_URL = "https://csv-be.tridz.in"
 function UploadWidget() {
   const [file, setFile] = useState(null);
   const [intervalId, setIntervalId] = useState([]);
