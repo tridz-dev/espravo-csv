@@ -32,9 +32,7 @@ class Migrate {
     async UpdateDisable() {
         console.log("success")
         let items_per_page = 500
-        axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`, {
-            headers: { "Authorization": `Basic YWRtaW46M2RtaW4=` }
-        })
+        axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`)
             .then(response => {
                 let total_pages = Math.ceil(response.data.pager?.total_items / items_per_page)
                 let total_product = response.data.pager?.total_items
@@ -49,9 +47,7 @@ class Migrate {
                             let split = this.progress_text.split(",")
                             console.log("split is", split)
                             if ((split.length > 1 && ind > split[0] || split[0] === "") && !this.shouldStop) {
-                                axios.get(`${API_URL}/api/products/vendor?page=${ind}&items_per_page=${items_per_page}`, {
-                                    headers: { "Authorization": `Basic YWRtaW46M2RtaW4=` }
-                                })
+                                axios.get(`${API_URL}/api/products/vendor?page=${ind}&items_per_page=${items_per_page}`)
                                     .then(res => {
                                         let data = res?.data?.rows
                                         let single_loop = data.map((single, index) => {
