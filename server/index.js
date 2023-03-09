@@ -170,6 +170,7 @@ router.get('/items', function (req, res, next) {
 // Base route
 router.get('/', function (req, res, next) {
   console.log("Router Working");
+  res.send("working")
   res.end();
 })
 
