@@ -6,10 +6,10 @@ const FAILED_FILE = 'failed.txt';
 const SUCCESS_FILE = "success.txt"
 const SUCCESS_DETAIL = "success_details.txt"
 const ERROR_FILE = "error.txt"
-const CREATE_URL = 'http://espfarnew.tridz.in/api/product/create';
-const UPDATE_URL = "http://espfarnew.tridz.in/api/product/update"
-const DISABLE_URL = "http://espfarnew.tridz.in/api/product/disable"
-const API_URL = "http://espfarnew.tridz.in"
+const API_URL = "https://esp-be.tridz.in"
+const CREATE_URL = 'https://esp-be.tridz.in/api/product/create';
+const UPDATE_URL = "https://esp-be.tridz.in/api/product/update"
+const DISABLE_URL = "https://esp-be.tridz.in/api/product/disable"
 const Progressstream = fs.createWriteStream('progress.txt', { flags: 'w' });
 const failStream = fs.createWriteStream('failed.txt', { flags: 'a' });
 const successStream = fs.createWriteStream('success.txt', { flags: 'a' });
@@ -23,7 +23,7 @@ class Migrate {
         const progress = fs.readFileSync("progress.txt", 'utf-8')
         // Parse the JSON data into a JavaScript object
         this.csv = JSON.parse(jsonData);
-        this.base_url = "http://espfarnew.tridz.in";
+        this.base_url = "https://esp-be.tridz.in";
         this.path = 'products/'
         this.final = []
         this.progress_text = progress
