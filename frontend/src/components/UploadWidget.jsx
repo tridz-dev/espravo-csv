@@ -70,7 +70,8 @@ function UploadWidget() {
         console.log(res.data);
       })
       .catch((err) => {
-        setUploaded(-1);
+        alert("something went worng on uploading")
+        setUploaded(null);
         console.error(err);
       });
   };
