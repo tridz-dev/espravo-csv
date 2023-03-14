@@ -12,7 +12,7 @@ function Header() {
             href="/"
             data-bcup-haslogintext="no"
           >
-            <span className="hidden font-bold sm:inline-block">Imagine</span>
+            <span className="hidden font-bold sm:inline-block">Upload</span>
           </a>
           <nav className="hidden gap-6 md:flex">
             <a
