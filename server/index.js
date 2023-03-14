@@ -55,7 +55,7 @@ app.post('/upload', upload.single('jsonFile'), (req, res) => {
       fs.writeFile(`${upload_dir}output.json`, JSON.stringify(jsonData, null, 2), (err) => {
         if (err) {
           console.error(err);
-          res.status(500).send('Error while saving file');
+          res.status(500).send('Error while saving file:',err);
         } else {
           res.send(`File was uploaded successfully to ${req.file.path}`);
         }

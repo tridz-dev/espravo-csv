@@ -10,20 +10,8 @@ import "./index.css";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
-  },
-  {
-    path: "/dashboard",
-    element: <Dashboard />,
-  },
-  {
-    path: "/upload",
     element: <Upload />,
-  },
-  {
-    path: "/settings",
-    element: <Settings />,
-  },
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
