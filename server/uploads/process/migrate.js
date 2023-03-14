@@ -19,10 +19,10 @@ const Errorstream = fs.createWriteStream('error.txt', { flags: 'a' });
 class Migrate {
     constructor(name) {
         // Read the contents of the JSON file
-        const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
+        // const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
         const progress = fs.readFileSync("progress.txt", 'utf-8')
         // Parse the JSON data into a JavaScript object
-        this.csv = JSON.parse(jsonData);
+        this.csv = []
         this.base_url = "https://esp-be.tridz.in";
         this.path = 'products/'
         this.final = []
@@ -31,6 +31,8 @@ class Migrate {
     }
     async UpdateDisable() {
         console.log("success")
+        const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
+        this.csv = JSON.parse(jsonData)
         let items_per_page = 500
         axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`)
             .then(response => {
