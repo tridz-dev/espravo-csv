@@ -3,8 +3,8 @@ import axios from "axios";
 import { IconFileSpreadsheet } from "@tabler/icons";
 import Title from "./global/page/title";
 // import Upload from "../pages/Upload";
-// const API_URL = "http://localhost:3000"
-const API_URL = "https://csv-be.tridz.in"
+const API_URL = "http://localhost:3000"
+// const API_URL = "https://csv-be.tridz.in"
 function UploadWidget() {
   const [file, setFile] = useState(null);
   const [intervalId, setIntervalId] = useState([]);
@@ -24,7 +24,7 @@ function UploadWidget() {
 
   const clearFile = () => {
     console.log(file);
-
+    setFile(null)
     console.log("cleared");
     console.log(file);
   };
@@ -99,17 +99,25 @@ function UploadWidget() {
     setIntervals(interval)
   }
 
-  const migrateFile = () => {
+  const migrateFile = (detail) => {
     setProgress(0)
     setMigrated(1)
     setMigrateStage("start")
-    axios.get(API_URL + "/migrate")
-      .then(res => {
-        Progress_check()
-      })
-      .catch(err => {
-        console.log("error in", err)
-      })
+    if (detail === "fresh_start") {
+      axios.get(API_URL + "/clear_progress")
+        .then(res => {
+          axios.get(API_URL + "/migrate")
+            .then(res => {
+              Progress_check()
+            })
+            .catch(err => {
+              console.log("error in", err)
+            })
+        })
+        .catch(err => {
+
+        })
+    }
   };
   useEffect(() => {
     return () => {
@@ -208,7 +216,7 @@ function UploadWidget() {
                 {migrate_stage == "stop" || migrate_stage == "initial" ? < div className="">
                   <button
                     className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
-                    onClick={migrateFile}
+                    onClick={() => migrateFile("fresh_start")}
                     title="Migrate data from the uploaded file to the E-commerce backend."
                   >
                     Migrate Data
@@ -257,7 +265,7 @@ function UploadWidget() {
                         Abort
                       </button>
                       <div className="my-2" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)`, width: "100px", height: "20px" }} />
-                      {progress}% completed
+                      {progress.toFixed(2)}% completed
                     </div>
                   }
                 </p> :

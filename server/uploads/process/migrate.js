@@ -33,7 +33,9 @@ class Migrate {
         console.log("success")
         const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
         this.csv = JSON.parse(jsonData)
+        console.log("csv uploaded",this.csv.length)
         let items_per_page = 500
+        process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`)
             .then(response => {
                 let total_pages = Math.ceil(response.data.pager?.total_items / items_per_page)
@@ -58,7 +60,7 @@ class Migrate {
                                                     if (Progressstream.writable) {
                                                         Progressstream.write(`${ind},${index + 1}`);
                                                     }
-                                                    Progressstream.close()
+                                                    Progressstream.close()  
                                                 }
                                                 catch (err) {
 

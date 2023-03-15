@@ -98,6 +98,17 @@ router.post("/process", (req, res) => {
 
   }
 })
+app.get("/clear_progress",(req,res)=>{
+  fs.writeFileSync("success.txt","")
+  fs.writeFileSync("failed.txt","")
+  fs.writeFileSync("success_details.txt","")
+  fs.writeFileSync("error.txt","")
+
+  fs.writeFile("progress.txt", "", (err) => {
+    if (err) throw err;
+    res.json("progress cleared")
+  })
+})
 app.get("/abort_migrate", (req, res) => {
   fs.writeFile("progress.txt", "", (err) => {
     if (err) throw err;
@@ -127,6 +138,10 @@ app.get("/progress", (req, res) => {
       if (progress_data === "csv") {
         if (final.csv == "0") {
           progress = 100
+          res.json(progress)
+        }
+        else if(final.data===""){
+          progress = 0
           res.json(progress)
         }
         else {
