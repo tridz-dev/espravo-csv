@@ -31,8 +31,14 @@ class Migrate {
     }
     async UpdateDisable() {
         console.log("success")
-        const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
-        this.csv = JSON.parse(jsonData)
+        try {
+
+            const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
+            this.csv = JSON.parse(jsonData)
+        }
+        catch (err) {
+            console.error("CSV file not found:", err)
+        }
         console.log("csv uploaded", this.csv.length)
         let items_per_page = 500
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
