@@ -1,794 +1,402 @@
-success in 6,1
-success in 1,1
-success in 24,1
-success in 2,1
-success in 12,1
-success in 22,1
-success in 3,1
-success in 4,1
-success in 25,1
-success in 20,1
-success in 7,1
-success in 14,1
-success in 8,1
-success in 19,1
-success in 15,1
-success in 23,1
-success in 13,1
-success in 9,1
-success in 18,1
-success in 11,1
-success in 16,1
-success in 21,1
-success in 10,230
-success in 6,330
-success in 6,154
-success in 6,398
-success in 6,418
-success in 17,145
-success in 17,80
-success in 6,141
-success in 17,285
-success in 6,117
-success in 10,227
-success in 17,469
-success in 17,441
-success in 1,114
-success in 17,250
-success in 1,358
-success in 1,416
-success in 1,332
-success in 1,346
-success in 17,460
-success in 1,394
-success in 17,474
-success in 1,442
-success in 2,278
-success in 24,33
-success in 17,456
-success in 24,241
-success in 24,413
-success in 17,284
-success in 17,274
-success in 24,425
-success in 24,435
-success in 24,427
-success in 24,409
-success in 24,459
-success in 1,149
-success in 12,49
-success in 24,457
-success in 2,495
-success in 1,447
-success in 3,147
-success in 22,253
-success in 22,397
-success in 22,461
-success in 22,421
-success in 22,379
-success in 22,375
-success in 22,195
-success in 24,240
-success in 3,297
-success in 4,112
-success in 12,302
-success in 24,418
-success in 24,64
-success in 12,46
-success in 7,34
-success in 4,316
-success in 4,380
-success in 7,72
-success in 8,170
-success in 24,398
-success in 14,337
-success in 14,351
-success in 7,60
-success in 7,225
-success in 7,194
-success in 7,80
-success in 7,202
-success in 7,247
-success in 22,36
-success in 7,112
-success in 14,328
-success in 20,311
-success in 14,371
-success in 8,270
-success in 14,333
-success in 22,32
-success in 22,408
-success in 3,429
-success in 7,222
-success in 22,202
-success in 8,248
-success in 14,317
-success in 7,206
-success in 1,106
-success in 22,214
-success in 3,30
-success in 1,32
-success in 12,398
-success in 22,2
-success in 12,299
-success in 12,289
-success in 12,259
-success in 2,362
-success in 24,41
-success in 19,179
-success in 23,389
-success in 25,44
-success in 24,185
-success in 16,64
-success in 23,419
-success in 1,204
-success in 25,64
-success in 17,185
-success in 23,471
-success in 16,236
-success in 23,379
-success in 18,429
-success in 16,338
-success in 2,392
-success in 12,417
-success in 15,458
-success in 2,402
-success in 6,86
-success in 8,244
-success in 21,31
-success in 12,371
-success in 13,409
-success in 4,236
-success in 16,410
-success in 13,473
-success in 3,316
-success in 4,144
-success in 9,260
-success in 4,232
-success in 16,22
-success in 4,459
-success in 4,246
-success in 7,140
-success in 4,130
-success in 21,405
-success in 19,203
-success in 11,477
-success in 7,100
-success in 4,160
-success in 21,241
-success in 7,134
-success in 4,228
-success in 16,32
-success in 4,132
-success in 3,243
-success in 21,443
-success in 11,229
-success in 13,175
-success in 23,397
-success in 13,73
-success in 21,483
-success in 3,320
-success in 16,488
-success in 3,326
-success in 4,256
-success in 4,242
-success in 19,41
-success in 12,375
-success in 7,300
-success in 7,148
-success in 7,107
-success in 7,336
-success in 12,310
-success in 7,338
-success in 7,354
-success in 7,344
-success in 7,322
-success in 20,105
-success in 24,421
-success in 24,353
-success in 22,438
-success in 7,81
-success in 24,400
-success in 19,263
-success in 19,285
-success in 19,314
-success in 19,320
-success in 19,335
-success in 19,319
-success in 15,238
-success in 19,328
-success in 23,149
-success in 19,339
-success in 23,279
-success in 19,293
-success in 23,173
-success in 23,13
-success in 19,300
-success in 23,123
-success in 19,334
-success in 19,298
-success in 23,131
-success in 19,282
-success in 23,227
-success in 23,3
-success in 23,177
-success in 19,305
-success in 23,29
-success in 23,135
-success in 23,7
-success in 19,310
-success in 23,345
-success in 19,283
-success in 19,288
-success in 19,313
-success in 23,323
-success in 23,327
-success in 14,120
-success in 14,46
-success in 19,277
-success in 19,309
-success in 19,329
-success in 19,351
-success in 19,299
-success in 19,272
-success in 19,487
-success in 19,295
-success in 23,31
-success in 23,409
-success in 19,497
-success in 23,291
-success in 4,140
-success in 17,476
-success in 17,455
-success in 13,17
-success in 13,55
-success in 19,276
-success in 13,49
-success in 23,337
-success in 13,65
-success in 23,331
-success in 23,303
-success in 23,206
-success in 18,22
-success in 19,311
-success in 21,412
-success in 9,175
-success in 0,2
-success in 13,143
-success in 16,444
-success in 23,398
-success in 13,129
-success in 16,456
-success in 1,66
-success in 13,191
-success in 0,20
-success in 16,436
-success in 16,452
-success in 0,32
-success in 0,16
-success in 0,6
-success in 0,28
-success in 0,36
-success in 16,458
-success in 13,31
-success in 16,442
-success in 7,181
-success in 21,374
-success in 3,246
-success in 20,26
-success in 0,8
-success in 21,319
-success in 0,10
-success in 0,34
-success in 11,45
-success in 0,12
-success in 0,42
-success in 0,18
-success in 0,22
-success in 0,46
-success in 16,440
-success in 0,50
-success in 0,76
-success in 0,4
-success in 0,40
-success in 0,48
-success in 0,14
-success in 0,44
-success in 16,61
-success in 0,26
-success in 0,24
-success in 0,30
-success in 0,52
-success in 0,38
-success in 22,306
-success in 1,121
-success in 18,294
-success in 23,150
-success in 23,216
-success in 7,343
-success in 0,94
-success in 7,113
-success in 19,496
-success in 24,310
-success in 23,356
-success in 8,91
-success in 2,363
-success in 7,329
-success in 23,126
-success in 23,334
-success in 3,335
-success in 14,346
-success in 20,446
-success in 19,428
-success in 4,229
-success in 23,394
-success in 19,60
-success in 23,482
-success in 9,211
-success in 22,282
-success in 23,238
-success in 15,397
-success in 15,51
-success in 4,247
-success in 4,243
-success in 0,64
-success in 23,168
-success in 0,88
-success in 0,56
-success in 17,484
-success in 23,134
-success in 0,70
-success in 0,66
-success in 0,60
-success in 23,442
-success in 23,14
-success in 8,11
-success in 23,308
 success in 0,58
-success in 23,8
-success in 23,310
-success in 0,54
-success in 0,78
-success in 0,84
-success in 0,62
-success in 23,332
-success in 15,13
-success in 0,82
-success in 18,274
-success in 12,405
-success in 12,292
-success in 12,397
-success in 14,457
-success in 12,396
-success in 8,82
-success in 8,435
-success in 12,40
-success in 8,368
-success in 12,67
-success in 8,304
-success in 8,431
-success in 8,438
-success in 7,353
-success in 0,118
-success in 0,108
-success in 0,68
-success in 0,102
-success in 0,104
-success in 0,92
-success in 0,144
-success in 0,90
+success in 0,22
 success in 0,74
-success in 0,110
-success in 0,98
-success in 0,126
-success in 0,86
-success in 0,136
-success in 0,134
-success in 0,124
-success in 0,120
-success in 0,114
-success in 22,104
-success in 0,106
-success in 0,112
-success in 23,176
-success in 23,336
-success in 13,52
-success in 23,316
-success in 0,154
-success in 0,146
-success in 0,164
-success in 0,132
-success in 0,72
-success in 0,142
-success in 16,25
-success in 0,152
-success in 0,162
-success in 0,160
-success in 0,140
-success in 0,156
-success in 0,170
-success in 0,31
-success in 0,11
-success in 0,53
-success in 0,7
-success in 0,182
-success in 0,150
-success in 0,122
-success in 0,27
-success in 0,168
-success in 16,435
-success in 18,36
-success in 19,82
-success in 11,320
-success in 0,128
-success in 0,166
-success in 0,184
-success in 0,272
-success in 0,200
-success in 0,244
-success in 0,190
-success in 0,202
-success in 0,224
-success in 0,192
-success in 0,214
-success in 0,158
-success in 0,270
-success in 0,208
-success in 0,198
-success in 0,180
-success in 0,176
-success in 0,206
-success in 0,228
-success in 0,138
-success in 0,254
-success in 0,234
-success in 0,212
-success in 0,194
-success in 0,130
-success in 0,148
-success in 0,178
-success in 0,15
-success in 0,13
-success in 0,23
-success in 0,39
-success in 0,129
-success in 0,51
-success in 0,37
-success in 23,22
-success in 0,238
-success in 0,266
-success in 0,210
-success in 0,222
-success in 0,172
-success in 0,174
-success in 0,240
-success in 0,264
-success in 0,256
-success in 0,280
-success in 0,250
-success in 0,93
-success in 0,25
-success in 0,19
-success in 0,61
-success in 0,29
-success in 0,57
-success in 0,59
-success in 0,73
-success in 0,292
-success in 0,300
-success in 0,143
-success in 0,232
-success in 0,242
-success in 0,286
-success in 0,21
-success in 19,430
-success in 13,18
-success in 0,290
-success in 0,296
-success in 0,248
-success in 0,294
-success in 0,258
-success in 0,260
-success in 0,284
-success in 0,216
-success in 0,278
-success in 0,230
-success in 0,276
-success in 0,274
-success in 0,288
-success in 0,226
-success in 19,382
-success in 0,137
-success in 0,141
-success in 0,81
-success in 0,75
-success in 0,135
-success in 0,105
-success in 0,79
-success in 0,17
-success in 0,127
-success in 0,85
-success in 0,268
-success in 0,91
-success in 0,103
-success in 0,77
-success in 0,101
-success in 0,145
-success in 0,236
-success in 0,246
-success in 0,175
-success in 0,133
-success in 0,203
-success in 0,117
-success in 0,262
-success in 0,119
-success in 0,155
-success in 0,139
-success in 0,173
-success in 0,89
-success in 0,151
-success in 0,131
-success in 0,430
-success in 0,458
-success in 0,382
-success in 0,252
-success in 0,462
-success in 0,416
-success in 0,460
-success in 0,396
-success in 0,398
-success in 0,406
-success in 0,342
-success in 0,314
-success in 0,436
-success in 0,418
-success in 0,366
-success in 0,452
-success in 0,448
-success in 0,408
-success in 0,498
-success in 4,188
-success in 4,395
-success in 0,157
-success in 0,229
-success in 0,281
-success in 0,169
-success in 0,183
-success in 0,121
+success in 0,68
+success in 0,62
+success in 0,1
+success in 0,100
 success in 0,116
-success in 0,480
-success in 0,282
-success in 0,96
-success in 0,149
-success in 19,167
-success in 0,209
-success in 0,376
-success in 11,465
+success in 0,110
+success in 0,120
+success in 0,134
+success in 0,29
+success in 0,89
+success in 0,35
+success in 0,196
+success in 0,202
 success in 0,186
-success in 0,115
-success in 0,365
-success in 0,87
-success in 0,322
-success in 0,107
-success in 0,414
-success in 0,181
-success in 0,179
-success in 0,334
-success in 0,80
-success in 0,302
-success in 0,298
-success in 0,243
-success in 0,205
-success in 0,171
-success in 0,279
-success in 0,95
-success in 0,167
-success in 0,213
-success in 0,185
-success in 0,211
-success in 0,263
-success in 0,177
-success in 0,165
-success in 0,97
-success in 0,207
-success in 0,261
-success in 0,245
-success in 0,199
-success in 0,299
-success in 0,271
-success in 0,227
-success in 0,197
-success in 0,269
-success in 0,163
-success in 0,215
-success in 0,297
-success in 0,295
-success in 0,251
-success in 0,253
-success in 0,265
-success in 0,293
-success in 0,189
-success in 0,191
-success in 0,159
-success in 0,201
-success in 0,195
-success in 0,225
-success in 0,291
-success in 0,161
-success in 12,221
-success in 12,213
-success in 3,286
-success in 3,299
-success in 0,237
-success in 0,111
-success in 0,247
-success in 0,289
-success in 0,235
+success in 0,33
+success in 0,190
+success in 0,137
+success in 0,210
+success in 0,228
+success in 0,248
+success in 0,266
+success in 0,268
+success in 0,278
+success in 0,250
+success in 0,187
+success in 0,133
+success in 0,121
+success in 0,79
+success in 0,260
 success in 0,193
-success in 0,275
-success in 0,277
-success in 0,301
-success in 0,267
-success in 0,387
-success in 0,285
-success in 0,283
-success in 0,469
-success in 0,437
-success in 0,249
-success in 0,447
-success in 0,109
-success in 0,423
-success in 0,449
-success in 0,273
-success in 0,403
-success in 0,485
-success in 0,303
-success in 0,341
-success in 22,171
-success in 0,451
+success in 0,14
+success in 0,6
+success in 0,16
+success in 0,26
+success in 0,30
+success in 0,48
+success in 0,42
+success in 0,155
+success in 0,18
+success in 0,28
+success in 0,66
+success in 0,8
+success in 0,124
+success in 0,54
+success in 0,94
+success in 0,46
+success in 0,70
+success in 0,60
+success in 0,104
+success in 0,50
+success in 0,10
+success in 0,72
+success in 0,241
+success in 0,27
+success in 0,21
+success in 0,19
+success in 0,25
+success in 0,82
+success in 0,114
+success in 0,5
+success in 0,84
+success in 0,106
+success in 0,148
+success in 0,92
+success in 0,96
+success in 0,88
+success in 0,146
+success in 0,150
+success in 0,83
+success in 0,7
+success in 0,31
+success in 0,140
+success in 0,126
+success in 0,162
+success in 0,152
+success in 0,130
+success in 0,132
+success in 0,71
+success in 0,15
+success in 0,55
+success in 0,17
+success in 0,122
+success in 0,156
+success in 0,87
+success in 0,23
+success in 0,164
+success in 0,160
+success in 0,118
+success in 0,158
+success in 0,168
+success in 0,172
+success in 0,142
+success in 0,176
+success in 0,240
+success in 0,226
+success in 0,208
+success in 0,138
+success in 0,200
+success in 0,174
+success in 0,224
+success in 0,204
+success in 0,222
+success in 0,234
+success in 0,97
+success in 0,105
+success in 0,63
+success in 0,232
+success in 0,43
+success in 0,284
+success in 0,65
+success in 0,498
+success in 0,434
+success in 0,270
+success in 0,478
+success in 0,214
+success in 0,452
+success in 0,170
+success in 0,264
+success in 0,424
+success in 0,242
+success in 0,252
+success in 0,192
+success in 0,236
+success in 0,440
+success in 0,212
+success in 0,178
+success in 0,182
+success in 0,47
+success in 0,206
+success in 0,53
+success in 0,272
+success in 0,246
+success in 0,300
+success in 0,490
+success in 0,262
+success in 0,86
+success in 0,81
+success in 0,292
+success in 0,282
+success in 0,276
+success in 0,103
+success in 0,73
+success in 0,11
+success in 0,75
 success in 0,99
-success in 0,475
-success in 9,351
-success in 2,500
-success in 2,132
-success in 2,260
-success in 7,335
-success in 3,229
-success in 3,315
-success in 3,244
-1
-965
-1
-840
-1
-1188
-1
-1171
-1
-2091
-1
-128
-1
-1325
-1
-1904
-1
-3400
-1
-2079
-1
-1317
-1
-1263
-1
-127
-1
-3399
-1
-4204
-1
-3814
-1
-4292
-1
-4259
-1
-3811
-1
-4022
-1
-4991
-1
-2950
-1
-4547
-1
-4983
-1
-4419
-1
-4266
-1
-5058
-1
-3029
-1
-4685
-1
-3455
-1
-6037
-1
-7087
-1
-6851
-1
-7454
-1
-1216
-1
-474
-1
-12576
-1
-5846
-1
-11297
-1
-10490
-1
-11374
-1
-10475
-1
-2963
-1
-11825
-1
-12530
-1
-10502
-1
-6224
-1
-11401
-1
-6256
-1
-10505
-1
-12422
-1
-10492
-1
-10504
-1
-11840
-1
-9632
-1
-11856
-1
-3225
-1
-3601
-1
-3600
-1
-5279
-1
-3683
-1
-323
-1
-3605
-1
-5196
-1
-2585
-1
-2238
-1
-6201
-1
-2563
+success in 0,294
+success in 0,290
+success in 0,20
+success in 0,157
+success in 0,165
+success in 0,125
+success in 0,296
+success in 0,310
+success in 0,298
+success in 0,492
+success in 0,12
+success in 0,4
+success in 0,153
+success in 0,131
+success in 0,127
+success in 0,360
+success in 0,378
+success in 0,348
+success in 0,350
+success in 0,362
+success in 0,342
+success in 0,107
+success in 0,366
+success in 0,416
+success in 0,382
+success in 0,334
+success in 0,64
+success in 0,32
+success in 0,44
+success in 0,344
+success in 0,379
+success in 0,197
+success in 0,149
+success in 0,59
+success in 0,161
+success in 0,147
+success in 0,159
+success in 0,76
+success in 0,56
+success in 0,406
+success in 0,45
+success in 0,129
+success in 0,24
+success in 0,221
+success in 0,119
+success in 0,49
+success in 0,408
+success in 0,102
+success in 0,400
+success in 0,332
+success in 0,468
+success in 0,78
+success in 0,227
+success in 0,67
+success in 0,195
+success in 0,90
+success in 0,420
+success in 0,386
+success in 0,213
+success in 0,201
+success in 0,255
+success in 0,117
+success in 0,211
+success in 0,163
+success in 0,199
+success in 0,189
+success in 0,177
+success in 0,112
+success in 0,145
+success in 0,191
+success in 0,91
+success in 0,151
+success in 0,402
+success in 0,410
+success in 0,446
+success in 0,430
+success in 0,444
+success in 0,418
+success in 0,390
+success in 0,476
+success in 0,388
+success in 0,484
+success in 0,428
+success in 0,462
+success in 0,432
+success in 0,500
+success in 0,436
+success in 0,108
+success in 0,324
+success in 0,470
+success in 0,231
+success in 0,377
+success in 0,384
+success in 0,488
+success in 0,205
+success in 0,128
+success in 0,175
+success in 0,229
+success in 0,343
+success in 0,52
+success in 0,36
+success in 0,312
+success in 0,188
+success in 0,376
+success in 0,254
+success in 0,184
+success in 0,330
+success in 0,381
+success in 0,143
+success in 0,38
+success in 0,61
+success in 0,494
+success in 0,491
+success in 0,301
+success in 0,181
+success in 0,111
+success in 0,394
+success in 0,338
+success in 0,166
+success in 0,220
+success in 0,414
+success in 0,218
+success in 0,464
+success in 0,216
+success in 0,303
+success in 0,486
+success in 0,113
+success in 0,39
+success in 0,203
+success in 0,429
+success in 0,223
+success in 0,413
+success in 0,225
+success in 0,183
+success in 0,280
+success in 0,279
+success in 0,435
+success in 0,287
+success in 0,93
+success in 0,307
+success in 0,179
+success in 0,297
+success in 0,37
+success in 0,293
+success in 0,291
+success in 0,289
+success in 0,123
+success in 0,479
+success in 0,481
+success in 0,194
+success in 0,198
+success in 0,357
+success in 0,404
+success in 0,380
+success in 0,281
+success in 0,483
+success in 0,375
+success in 0,463
+success in 0,445
+success in 0,427
+success in 0,275
+success in 0,341
+success in 0,263
+success in 0,13
+success in 0,433
+success in 0,363
+success in 0,283
+success in 0,389
+success in 0,411
+success in 0,395
+success in 0,441
+success in 0,41
+success in 0,425
+success in 0,383
+success in 0,421
+success in 0,69
+success in 0,109
+success in 0,77
+success in 0,207
+success in 0,51
+success in 0,487
+success in 0,419
+success in 0,477
+success in 0,439
+success in 0,423
+success in 0,409
+success in 0,359
+success in 0,443
+success in 0,399
+success in 0,482
+success in 0,493
+success in 0,9
+success in 0,139
+success in 0,407
+success in 0,374
+success in 0,336
+success in 0,346
+success in 0,352
+success in 0,244
+success in 0,144
+success in 0,215
+success in 0,489
+success in 0,454
+success in 0,340
+success in 0,474
+success in 0,217
+success in 0,417
+success in 0,314
+success in 0,326
+success in 0,466
+success in 0,354
+success in 0,391
+success in 0,426
+success in 0,259
+success in 0,2
+success in 0,3
+success in 0,361
+success in 0,237
+success in 0,209
+success in 0,367
+success in 0,325
+success in 0,239
+success in 0,311
+success in 0,313
+success in 0,393
+success in 0,277
+success in 0,320
+success in 0,230
+success in 0,349
+success in 0,233
+success in 0,485
+success in 0,235
+success in 0,337
+success in 0,101
+success in 0,95
+success in 0,431
+success in 0,365
+success in 0,345
+success in 0,135
+success in 0,351
+success in 0,415
+success in 0,335
+success in 0,353
+success in 0,315
+success in 0,355
+success in 0,323
+success in 0,333
+success in 0,373
+success in 0,57
+success in 0,169
+success in 0,317
+success in 0,319
+success in 0,329
+success in 0,171

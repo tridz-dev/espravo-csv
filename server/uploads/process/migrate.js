@@ -33,7 +33,7 @@ class Migrate {
         console.log("success")
         const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
         this.csv = JSON.parse(jsonData)
-        console.log("csv uploaded",this.csv.length)
+        console.log("csv uploaded", this.csv.length)
         let items_per_page = 500
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`)
@@ -48,7 +48,8 @@ class Migrate {
                 let product_promises = Array.apply(null, { length: total_pages })
                     .map((data, ind) => {
                         return new Promise((resolve, reject) => {
-                            let split = this.progress_text.split(",")
+                            let split_data = this.progress_text.split(";").length > 1 ? this.progress_text.split(";")[this.progress_text.split(";").length - 2] : ""
+                            let split = split_data.split(",")
                             console.log("split is", split)
                             if ((split.length > 1 && ind > split[0] || split[0] === "") && !this.shouldStop) {
                                 axios.get(`${API_URL}/api/products/vendor?page=${ind}&items_per_page=${items_per_page}`)
@@ -58,9 +59,14 @@ class Migrate {
                                             return new Promise((resolve1, reject1) => {
                                                 try {
                                                     if (Progressstream.writable) {
-                                                        Progressstream.write(`${ind},${index + 1}`);
+                                                        Progressstream.write(`${ind},${index + 1};`, (err) => {
+                                                            if (err) {
+                                                                console.error('Error writing to stream:', err);
+                                                            }
+
+                                                            Progressstream.close();
+                                                        });
                                                     }
-                                                    Progressstream.close()  
                                                 }
                                                 catch (err) {
 
@@ -128,9 +134,14 @@ class Migrate {
                         console.log("loop completed remaining length", this.csv.length)
                         try {
                             if (Progressstream.writable) {
-                                Progressstream.write(`0`);
+                                Progressstream.write(`0;`, (err) => {
+                                    if (err) {
+                                        console.error('Error writing to stream:', err);
+                                    }
+
+                                    Progressstream.close();
+                                });
                             }
-                            Progressstream.close()
                         }
                         catch (err) {
 
@@ -139,17 +150,27 @@ class Migrate {
                         try {
                             let errorIndex = 0
                             if (Progressstream.writable) {
-                                Progressstream.write(`1`);
+                                Progressstream.write(`1;`, (err) => {
+                                    if (err) {
+                                        console.error('Error writing to stream:', err);
+                                    }
+
+                                    Progressstream.close();
+                                });
                             }
-                            Progressstream.close()
                             let complete = this.csv.map((data, index) => {
                                 return new Promise((resolve1, reject1) => {
                                     if (!this.shouldStop) {
                                         try {
                                             if (Progressstream.writable) {
-                                                Progressstream.write(`${index + 1}`);
+                                                Progressstream.write(`${index + 1};`, (err) => {
+                                                    if (err) {
+                                                        console.error('Error writing to stream:', err);
+                                                    }
+
+                                                    Progressstream.close();
+                                                });
                                             }
-                                            Progressstream.close()
 
                                         }
                                         catch (err) {
@@ -181,9 +202,14 @@ class Migrate {
                                     console.log("migrate process completed")
                                     try {
                                         if (Progressstream.writable) {
-                                            Progressstream.write(`${length}`);
+                                            Progressstream.write(`${length};`, (err) => {
+                                                if (err) {
+                                                    console.error('Error writing to stream:', err);
+                                                }
+
+                                                Progressstream.close();
+                                            });
                                         }
-                                        Progressstream.close()
                                     }
                                     catch (error) {
 

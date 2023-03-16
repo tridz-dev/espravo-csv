@@ -55,7 +55,7 @@ app.post('/upload', upload.single('jsonFile'), (req, res) => {
       fs.writeFile(`${upload_dir}output.json`, JSON.stringify(jsonData, null, 2), (err) => {
         if (err) {
           console.error(err);
-          res.status(500).send('Error while saving file:',err);
+          res.status(500).send('Error while saving file:', err);
         } else {
           res.send(`File was uploaded successfully to ${req.file.path}`);
         }
@@ -98,11 +98,11 @@ router.post("/process", (req, res) => {
 
   }
 })
-app.get("/clear_progress",(req,res)=>{
-  fs.writeFileSync("success.txt","")
-  fs.writeFileSync("failed.txt","")
-  fs.writeFileSync("success_details.txt","")
-  fs.writeFileSync("error.txt","")
+app.get("/clear_progress", (req, res) => {
+  fs.writeFileSync("success.txt", "")
+  fs.writeFileSync("failed.txt", "")
+  fs.writeFileSync("success_details.txt", "")
+  fs.writeFileSync("error.txt", "")
 
   fs.writeFile("progress.txt", "", (err) => {
     if (err) throw err;
@@ -131,26 +131,27 @@ app.get("/progress", (req, res) => {
       console.error(err);
       res.status(500).send('Error reading data file');
     } else {
-      const final = { "loop": loop, "csv": csv, "data": data }
+      let datas = data.split(";").length > 1 ? data.split(";")[data.split(";").length - 2] : ""
+      const final = { "loop": loop, "csv": csv, "data": data, "progress_txt": datas }
       console.log("progress test", final)
       let progress
-      let progress_data = final.data.includes(",") ? "loop" : "csv"
+      let progress_data = datas.includes(",") ? "loop" : "csv"
       if (progress_data === "csv") {
         if (final.csv == "0") {
           progress = 100
           res.json(progress)
         }
-        else if(final.data===""){
+        else if (datas === "") {
           progress = 0
           res.json(progress)
         }
         else {
-          progress = ((Number(final.data) / Number(final.csv)) * 50) + 50
+          progress = ((Number(datas) / Number(final.csv)) * 50) + 50
           res.json(progress);
         }
       }
       else {
-        let split = final.data.split(",")
+        let split = datas.split(",")
         progress = (((Number(split[0]) + 1) * Number(split[1])) / Number(final.loop)) * 50
         res.json(progress);
       }
