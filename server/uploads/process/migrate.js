@@ -58,15 +58,11 @@ class Migrate {
                                         let single_loop = data.map((single, index) => {
                                             return new Promise((resolve1, reject1) => {
                                                 try {
-                                                    if (Progressstream.writable) {
-                                                        Progressstream.write(`${ind},${index + 1};`, (err) => {
-                                                            if (err) {
-                                                                console.error('Error writing to stream:', err);
-                                                            }
-
-                                                            Progressstream.close();
-                                                        });
-                                                    }
+                                                    Progressstream.write(`${ind},${index + 1};`, (err) => {
+                                                        if (err) {
+                                                            console.error('Error writing to stream:', err);
+                                                        }
+                                                    });
                                                 }
                                                 catch (err) {
 
@@ -133,15 +129,11 @@ class Migrate {
                         const length = this.csv.length
                         console.log("loop completed remaining length", this.csv.length)
                         try {
-                            if (Progressstream.writable) {
-                                Progressstream.write(`0;`, (err) => {
-                                    if (err) {
-                                        console.error('Error writing to stream:', err);
-                                    }
-
-                                    Progressstream.close();
-                                });
-                            }
+                            Progressstream.write(`0;`, (err) => {
+                                if (err) {
+                                    console.error('Error writing to stream:', err);
+                                }
+                            });
                         }
                         catch (err) {
 
@@ -149,29 +141,21 @@ class Migrate {
                         fs.writeFileSync("csvlength.json", `${this.csv.length}`)
                         try {
                             let errorIndex = 0
-                            if (Progressstream.writable) {
-                                Progressstream.write(`1;`, (err) => {
-                                    if (err) {
-                                        console.error('Error writing to stream:', err);
-                                    }
 
-                                    Progressstream.close();
-                                });
-                            }
+                            Progressstream.write(`1;`, (err) => {
+                                if (err) {
+                                    console.error('Error writing to stream:', err);
+                                }
+                            });
                             let complete = this.csv.map((data, index) => {
                                 return new Promise((resolve1, reject1) => {
                                     if (!this.shouldStop) {
                                         try {
-                                            if (Progressstream.writable) {
-                                                Progressstream.write(`${index + 1};`, (err) => {
-                                                    if (err) {
-                                                        console.error('Error writing to stream:', err);
-                                                    }
-
-                                                    Progressstream.close();
-                                                });
-                                            }
-
+                                            Progressstream.write(`${index + 1};`, (err) => {
+                                                if (err) {
+                                                    console.error('Error writing to stream:', err);
+                                                }
+                                            });
                                         }
                                         catch (err) {
 
@@ -201,15 +185,11 @@ class Migrate {
                                 .then((final) => {
                                     console.log("migrate process completed")
                                     try {
-                                        if (Progressstream.writable) {
-                                            Progressstream.write(`${length};`, (err) => {
-                                                if (err) {
-                                                    console.error('Error writing to stream:', err);
-                                                }
-
-                                                Progressstream.close();
-                                            });
-                                        }
+                                        Progressstream.write(`${length};`, (err) => {
+                                            if (err) {
+                                                console.error('Error writing to stream:', err);
+                                            }
+                                        });
                                     }
                                     catch (error) {
 
@@ -340,7 +320,7 @@ class Migrate {
             axios.post(CREATE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
-                    successStream.write(`${1}\n`);
+                    successDetailStream.write(`success on creating ${file_to_update.ITEM_NUMBER} - ${file_to_update.ITEM_NAME}\n`)
                 })
                 .catch(err => {
                     Errorstream.write(`error on create ${file_to_update.ITEM_NUMBER}:-${(err)}\n`);

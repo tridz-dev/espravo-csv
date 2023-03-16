@@ -72,6 +72,7 @@ app.get('/migrate', async (req, res) => {
   }
   try {
     // Start the long-running process
+    console.log("calling the migrate")
     MigrateProcess.shouldStop = false;
     const data = MigrateProcess.UpdateDisable()
   } catch (error) {
