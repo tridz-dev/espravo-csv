@@ -118,6 +118,15 @@ function UploadWidget() {
 
         })
     }
+    else {
+      axios.get(API_URL + "/migrate")
+        .then(res => {
+          Progress_check()
+        })
+        .catch(err => {
+          console.log("error in", err)
+        })
+    }
   };
   useEffect(() => {
     return () => {
