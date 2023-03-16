@@ -14,7 +14,7 @@ function Header() {
           >
             <span className="hidden font-bold sm:inline-block">Upload</span>
           </a>
-          <nav className="hidden gap-6 md:flex">
+          {/* <nav className="hidden gap-6 md:flex">
             <a
               className="flex items-center text-lg font-semibold text-slate-600 sm:text-sm"
               href="#"
@@ -31,7 +31,7 @@ function Header() {
             >
               Logout
             </a>
-          </nav>
+          </nav> */}
           <div></div>
         </div>
         <AccountNav />

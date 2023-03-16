@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
 import UploadWidget from "../components/UploadWidget";
 function Upload() {
   return (

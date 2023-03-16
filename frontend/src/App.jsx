@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+import { Upload } from "./pages";
 
-import Dashboard from "./pages/Dashboard";
 
 function App() {
   const [user, setUser] = useState(null);
 
   return (
     <>
-      <Dashboard />
+      <Upload />
     </>
   );
 }
