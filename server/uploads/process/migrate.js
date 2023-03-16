@@ -271,7 +271,7 @@ class Migrate {
             axios.post(DISABLE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
-                    successDetailStream.write(`success on disable ${data.ITEM_NUMBER} - ${data.ITEM_NAME}\n`)
+                    successDetailStream.write(`success on disable ${data.sku} - ${data.product}\n`)
                 })
                 .catch(err => {
                     Errorstream.write(`error on disable ${data.variation_uuid}:-${(err)}\n`);
