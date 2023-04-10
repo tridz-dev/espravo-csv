@@ -107,7 +107,8 @@ app.get("/clear_progress", (req, res) => {
 
   fs.writeFile("progress.txt", "", (err) => {
     if (err) throw err;
-    res.json("progress cleared")
+    else
+      res.json("progress cleared")
   })
 })
 app.get("/abort_migrate", (req, res) => {
@@ -134,7 +135,7 @@ app.get("/progress", (req, res) => {
     } else {
       let datas = data.split(";").length > 1 ? data.split(";")[data.split(";").length - 2] : ""
       const final = { "loop": loop, "csv": csv, "data": data, "progress_txt": datas }
-      console.log("progress test", final)
+      console.log("progress test", { "loop": loop, "csv": csv, "progress_txt": datas })
       let progress
       let progress_data = datas.includes(",") ? "loop" : "csv"
       if (progress_data === "csv") {
@@ -163,6 +164,7 @@ app.get('/rerun', (req, res) => {
   if (!req) {
     return res.status(400).send('No file was uploaded.');
   }
+  RerunFailed.rerunFailedItems()
 
 })
 
