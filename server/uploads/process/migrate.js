@@ -15,6 +15,8 @@ const failStream = fs.createWriteStream('failed.txt', { flags: 'a' });
 const successStream = fs.createWriteStream('success.txt', { flags: 'a' });
 const successDetailStream = fs.createWriteStream('success_details.txt', { flags: 'a' });
 const Errorstream = fs.createWriteStream('error.txt', { flags: 'a' });
+const queue = [];
+const create_queue = [];
 
 class Migrate {
     constructor(name) {
@@ -29,6 +31,7 @@ class Migrate {
         this.progress_text = progress
         this.shouldStop = false
     }
+    // Add a new item to the queue
     async UpdateDisable() {
         console.log("success")
         try {
@@ -46,7 +49,7 @@ class Migrate {
             .then(response => {
                 let total_pages = Math.ceil(response.data.pager?.total_items / items_per_page)
                 let total_product = response.data.pager?.total_items
-                // let total_pages = 5
+                // let total_pages = 2
                 // let total_product = 50
                 // console.log(`total pages ${total_pages}`)
                 // total pages calculated to fetch all data
@@ -54,7 +57,8 @@ class Migrate {
                 let product_promises = Array.apply(null, { length: total_pages })
                     .map((data, ind) => {
                         return new Promise((resolve, reject) => {
-                            let split_data = this.progress_text.split(";").length > 1 ? this.progress_text.split(";")[this.progress_text.split(";").length - 2] : ""
+                            const progress = fs.readFileSync("progress.txt", 'utf-8')
+                            let split_data = progress.split(";").length > 1 ? progress.split(";")[progress.split(";").length - 2] : ""
                             let split = split_data.split(",")
                             console.log("split is", split)
                             if ((split.length > 1 && ind > split[0] || split[0] === "") && !this.shouldStop) {
@@ -73,39 +77,40 @@ class Migrate {
                                                 catch (err) {
 
                                                 }
+                                                this.addToQueue({ single, ind, index, resolve1 });
                                                 // Checking csv for the product
-                                                let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku)
-                                                let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku)
-                                                if (find.length) {
-                                                    // if found update product in backend
-                                                    this.Update(single, find[0])
-                                                        .then(res => {
-                                                            this.csv.splice(findIndex, 1)
-                                                            successStream.write(`success in ${ind},${index + 1}\n`);
-                                                        })
-                                                        .catch(err => {
-                                                            failStream.write(`${ind},${index + 1}\n`);
-                                                            // console.log("call error in update is", err)
-                                                        })
-                                                        .finally(res => {
-                                                            resolve1(`${ind},${index + 1}`)
-                                                        })
-                                                }
-                                                else {
-                                                    // else disable product in backend
-                                                    this.Disable(single)
-                                                        .then(res => {
-                                                            successStream.write(`success in ${ind},${index + 1}\n`);
-                                                            this.csv.splice(findIndex, 1)
-                                                        })
-                                                        .catch(err => {
-                                                            // console.log("call error in disable is", err)
-                                                            failStream.write(`${ind},${index + 1}\n`);
-                                                        })
-                                                        .finally(res => {
-                                                            resolve1(`${ind},${index + 1}`)
-                                                        })
-                                                }
+                                                // let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku)
+                                                // let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku)
+                                                // if (find.length) {
+                                                //     // if found update product in backend
+                                                //     this.Update(single, find[0])
+                                                //         .then(res => {
+                                                //             this.csv.splice(findIndex, 1)
+                                                //             successStream.write(`success in ${ind},${index + 1}\n`);
+                                                //         })
+                                                //         .catch(err => {
+                                                //             failStream.write(`${ind},${index + 1}\n`);
+                                                //             // console.log("call error in update is", err)
+                                                //         })
+                                                //         .finally(res => {
+                                                //             resolve1(`${ind},${index + 1}`)
+                                                //         })
+                                                // }
+                                                // else {
+                                                //     // else disable product in backend
+                                                //     this.Disable(single)
+                                                //         .then(res => {
+                                                //             successStream.write(`success in ${ind},${index + 1}\n`);
+                                                //             this.csv.splice(findIndex, 1)
+                                                //         })
+                                                //         .catch(err => {
+                                                //             // console.log("call error in disable is", err)
+                                                //             failStream.write(`${ind},${index + 1}\n`);
+                                                //         })
+                                                //         .finally(res => {
+                                                //             resolve1(`${ind},${index + 1}`)
+                                                //         })
+                                                // }
                                             })
                                         })
                                         Promise.all(single_loop)
@@ -147,12 +152,6 @@ class Migrate {
                         fs.writeFileSync("csvlength.json", `${this.csv.length}`)
                         try {
                             let errorIndex = 0
-
-                            Progressstream.write(`1;`, (err) => {
-                                if (err) {
-                                    console.error('Error writing to stream:', err);
-                                }
-                            });
                             let complete = this.csv.map((data, index) => {
                                 return new Promise((resolve1, reject1) => {
                                     if (!this.shouldStop) {
@@ -166,21 +165,22 @@ class Migrate {
                                         catch (err) {
 
                                         }
-                                        this.Create(data)
-                                            .then(res => {
-                                                successStream.write(`${index + 1}\n`);
-                                                this.csv.splice(index, 1)
-                                            })
-                                            .catch(err => {
-                                                if (errorIndex == 0) {
-                                                    // console.log("call error in create is", err)
-                                                    errorIndex++
-                                                }
-                                                failStream.write(`${index + 1}\n`);
-                                            })
-                                            .finally(res => {
-                                                resolve1(`${index + 1}`)
-                                            })
+                                        this.addToCreateQueue({ data, index, resolve1 });
+                                        // this.Create(data)
+                                        //     .then(res => {
+                                        //         successStream.write(`${index + 1}\n`);
+                                        //         this.csv.splice(index, 1)
+                                        //     })
+                                        //     .catch(err => {
+                                        //         if (errorIndex == 0) {
+                                        //             // console.log("call error in create is", err)
+                                        //             errorIndex++
+                                        //         }
+                                        //         failStream.write(`${index + 1}\n`);
+                                        //     })
+                                        //     .finally(res => {
+                                        //         resolve1(`${index + 1}`)
+                                        //     })
                                     }
                                     else {
                                         resolve1("")
@@ -219,6 +219,86 @@ class Migrate {
                 return false
             });
     }
+    async processQueue() {
+        const item = queue[0];
+        const { single, ind, index, resolve1 } = item;
+
+        // Checking csv for the product
+        let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku);
+        let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku);
+
+        if (find.length) {
+            // if found update product in backend
+            this.Update(single, find[0])
+                .then(res => {
+                    this.csv.splice(findIndex, 1);
+                    successStream.write(`success in ${ind},${index + 1}\n`);
+                })
+                .catch(err => {
+                    failStream.write(`${ind},${index + 1}\n`);
+                })
+                .finally(res => {
+                    resolve1(`${ind},${index + 1}`);
+                    // Remove the item from the queue and process the next item
+                    queue.shift();
+                    if (queue.length) {
+                        this.processQueue();
+                    }
+                });
+        } else {
+            // else disable product in backend
+            this.Disable(single)
+                .then(res => {
+                    successStream.write(`success in ${ind},${index + 1}\n`);
+                    this.csv.splice(findIndex, 1);
+                })
+                .catch(err => {
+                    failStream.write(`${ind},${index + 1}\n`);
+                })
+                .finally(res => {
+                    resolve1(`${ind},${index + 1}`);
+                    // Remove the item from the queue and process the next item
+                    queue.shift();
+                    if (queue.length) {
+                        this.processQueue();
+                    }
+                });
+        }
+    }
+    async processCreateQueue() {
+        const item = create_queue[0];
+        const { data, index, resolve1 } = item;
+        this.Create(data)
+            .then(res => {
+                successStream.write(`${index + 1}\n`);
+                this.csv.splice(index, 1)
+            })
+            .catch(err => {
+                failStream.write(`${index + 1}\n`);
+            })
+            .finally(res => {
+                // Remove the item from the queue and process the next item
+                create_queue.shift();
+                if (create_queue.length) {
+                    this.processCreateQueue();
+                }
+                resolve1(`${index + 1}`)
+            })
+    }
+    addToQueue(item) {
+        queue.push(item);
+        if (queue.length === 1) {
+            // If the queue was previously empty, start processing it
+            this.processQueue();
+        }
+    }
+    addToCreateQueue(item) {
+        create_queue.push(item);
+        if (create_queue.length === 1) {
+            // If the queue was previously empty, start processing it
+            this.processCreateQueue();
+        }
+    }
     async Update(data, file_to_update) {
         return new Promise((resolve, reject) => {
             let datas
@@ -244,7 +324,7 @@ class Migrate {
                         "favourite": 0,
                         "image_id": file_to_update.IMAGE_ID,
                         "image_type": file_to_update.IMAGE_TYPE,
-                        "keyword": file_to_update.KEYWORD.split("|"),
+                        "keyword": file_to_update.KEYWORD ? file_to_update.KEYWORD.split("|") : [],
                         "max_height": file_to_update.MAX_HEIGHT,
                         "max_width": file_to_update.MAX_WIDTH,
                         "orientation": file_to_update.ORIENTATION ? [`${file_to_update.ORIENTATION}`] : [],
@@ -308,7 +388,7 @@ class Migrate {
                         "favourite": 0,
                         "image_id": file_to_update.IMAGE_ID,
                         "image_type": file_to_update.IMAGE_TYPE,
-                        "keyword": file_to_update.KEYWORD.split("|"),
+                        "keyword": file_to_update.KEYWORD ? file_to_update.KEYWORD.split("|") : [],
                         "max_height": file_to_update.MAX_HEIGHT,
                         "max_width": file_to_update.MAX_WIDTH,
                         "orientation": file_to_update.ORIENTATION ? [`${file_to_update.ORIENTATION}`] : [],
