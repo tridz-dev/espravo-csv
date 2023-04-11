@@ -154,7 +154,7 @@ app.get("/progress", (req, res) => {
       }
       else {
         let split = datas.split(",")
-        progress = (((Number(split[0]) + 1) * Number(split[1])) / Number(final.loop)) * 50
+        progress = ((((Number(split[0])) * 500) + Number(split[1])) / Number(final.loop)) * 50
         res.json(progress);
       }
     }

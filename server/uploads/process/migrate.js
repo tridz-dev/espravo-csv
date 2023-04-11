@@ -45,7 +45,13 @@ class Migrate {
         console.log("csv uploaded", this.csv.length)
         let items_per_page = 500
         process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-        axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`)
+        axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`,
+            {
+                headers: {
+                    'Authorization': 'Basic YWRtaW46TWlsbC1JbmNvcnBvcmF0ZS1DdXNoaW9uLUVwaXNkZXMtRG9udC02',
+                }
+            }
+        )
             .then(response => {
                 let total_pages = Math.ceil(response.data.pager?.total_items / items_per_page)
                 let total_product = response.data.pager?.total_items
@@ -62,7 +68,13 @@ class Migrate {
                             let split = split_data.split(",")
                             console.log("split is", split)
                             if ((split.length > 1 && ind > split[0] || split[0] === "") && !this.shouldStop) {
-                                axios.get(`${API_URL}/api/products/vendor?page=${ind}&items_per_page=${items_per_page}`)
+                                axios.get(`${API_URL}/api/products/vendor?page=${ind}&items_per_page=${items_per_page}`,
+                                    {
+                                        headers: {
+                                            'Authorization': 'Basic YWRtaW46TWlsbC1JbmNvcnBvcmF0ZS1DdXNoaW9uLUVwaXNkZXMtRG9udC02',
+                                        }
+                                    }
+                                )
                                     .then(res => {
                                         let data = res?.data?.rows
                                         let single_loop = data.map((single, index) => {
@@ -250,7 +262,7 @@ class Migrate {
             this.Disable(single)
                 .then(res => {
                     successStream.write(`success in ${ind},${index + 1}\n`);
-                    this.csv.splice(findIndex, 1);
+                    // this.csv.splice(findIndex, 1);
                 })
                 .catch(err => {
                     failStream.write(`${ind},${index + 1}\n`);
@@ -324,7 +336,7 @@ class Migrate {
                         "favourite": 0,
                         "image_id": file_to_update.IMAGE_ID,
                         "image_type": file_to_update.IMAGE_TYPE,
-                        "keyword": file_to_update.KEYWORD ? file_to_update.KEYWORD.split("|") : [],
+                        "keyword": file_to_update.KEYWORD ? file_to_update.KEYWORD.split('|').filter(str => str.length > 0) : [],
                         "max_height": file_to_update.MAX_HEIGHT,
                         "max_width": file_to_update.MAX_WIDTH,
                         "orientation": file_to_update.ORIENTATION ? [`${file_to_update.ORIENTATION}`] : [],
@@ -344,7 +356,7 @@ class Migrate {
                     successDetailStream.write(`success on update ${datas.sku} - ${datas.product_name}\n`)
                 })
                 .catch(err => {
-                    Errorstream.write(`error on update ${file_to_update.ITEM_NUMBER}:-${(err)}\n`);
+                    Errorstream.write(`error on update ${file_to_update.ITEM_NUMBER} ${datas.variation_id}:-${(err)}\n`);
                     reject(err)
                 })
         })
@@ -388,7 +400,7 @@ class Migrate {
                         "favourite": 0,
                         "image_id": file_to_update.IMAGE_ID,
                         "image_type": file_to_update.IMAGE_TYPE,
-                        "keyword": file_to_update.KEYWORD ? file_to_update.KEYWORD.split("|") : [],
+                        "keyword": file_to_update.KEYWORD ? file_to_update.KEYWORD.split('|').filter(str => str.length > 0) : [],
                         "max_height": file_to_update.MAX_HEIGHT,
                         "max_width": file_to_update.MAX_WIDTH,
                         "orientation": file_to_update.ORIENTATION ? [`${file_to_update.ORIENTATION}`] : [],
