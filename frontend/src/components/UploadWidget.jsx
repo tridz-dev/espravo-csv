@@ -3,8 +3,8 @@ import axios from "axios";
 import { IconFileSpreadsheet } from "@tabler/icons";
 import Title from "../components/global/page/title";
 // import Upload from "../pages/Upload";
-// const API_URL = "http://localhost:3000"
-const API_URL = "https://csv-be.tridz.in"
+const API_URL = "http://localhost:3000"
+// const API_URL = "https://csv-be.tridz.in"
 function UploadWidget() {
   const [file, setFile] = useState(null);
   const [intervalId, setIntervalId] = useState([]);
@@ -86,6 +86,7 @@ function UploadWidget() {
           if (res.data == 100) {
             clearIntervals(intervalId)
             interval = 0
+            setMigrateStage("completed")
             console.log("migration progress fetch is stoping")
           }
           else {
@@ -95,7 +96,7 @@ function UploadWidget() {
         .catch(err => {
           console.log("migration progress error", err)
         })
-    }, 5000)
+    }, 7000)
     setIntervals(interval)
   }
 
@@ -135,6 +136,9 @@ function UploadWidget() {
     }
 
   }, [])
+  const callError = () => {
+
+  }
   useEffect(() => {
     console.log("migration change", migrated)
   }, [migrated])
@@ -222,7 +226,7 @@ function UploadWidget() {
               </button>
             ) : (
               <div className="flex mt-8">
-                {migrate_stage == "stop" || migrate_stage == "initial" ? < div className="">
+                {migrate_stage == "stop" || migrate_stage == "initial" ? < div className="w-full">
                   <button
                     className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                     onClick={() => migrateFile("fresh_start")}
@@ -238,7 +242,7 @@ function UploadWidget() {
                     Abort & Delete
                   </button>
                 </div> : ""}
-                {migrate_stage === "pause" || migrate_stage === "start" ? <p className="progress-bar">
+                {migrate_stage === "pause" || migrate_stage === "start" ? <p className="progress-bar w-full">
                   {migrate_stage == "pause" ?
                     <div>
                       <button
@@ -255,9 +259,10 @@ function UploadWidget() {
                       >
                         Abort
                       </button>
-                      <div className="" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)`, width: "100px", height: "20px" }} />
+                      <div className="w-full h-[30px]" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)` }} />
                       {progress}% completed
-                    </div> :
+                    </div>
+                    :
                     <div>
                       <button
                         className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
@@ -273,12 +278,20 @@ function UploadWidget() {
                       >
                         Abort
                       </button>
-                      <div className="my-2" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)`, width: "100px", height: "20px" }} />
+                      <div className="my-2 w-full h-[30px]" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)` }} />
                       {progress.toFixed(2)}% completed
                     </div>
                   }
                 </p> :
-                  ""
+                  migrate_stage === "completed" ? <div className="w-full">
+                    <button
+                      className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                      onClick={() => AbortMigrate()}
+                      title="Finish the process"
+                    >
+                      Done
+                    </button>
+                  </div> : ""
                 }
               </div>
             )}
