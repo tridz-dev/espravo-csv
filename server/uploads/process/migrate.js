@@ -13,11 +13,12 @@ const DISABLE_URL = "https://esp-be.tridz.in/api/product/disable"
 const Progressstream = fs.createWriteStream('progress.txt', { flags: 'w' });
 const failStream = fs.createWriteStream('failed.txt', { flags: 'a' });
 const successStream = fs.createWriteStream('success.txt', { flags: 'a' });
+const successIdStream = fs.createWriteStream("success_id.txt", { flags: "a" })
 const successDetailStream = fs.createWriteStream('success_details.txt', { flags: 'a' });
 const Errorstream = fs.createWriteStream('error.txt', { flags: 'a' });
 const queue = [];
 const create_queue = [];
-
+const cookie = "SESSec5a92862a48f121bdb88ebb0ed1b008=aXUXr7tf66CJqYUbQz47vsD9MHnqHDYHluygDdLnoeQ"
 class Migrate {
     constructor(name) {
         // Read the contents of the JSON file
@@ -25,6 +26,7 @@ class Migrate {
         const progress = fs.readFileSync("progress.txt", 'utf-8')
         // Parse the JSON data into a JavaScript object
         this.csv = []
+        this.progress_ids = []
         this.base_url = "https://esp-be.tridz.in";
         this.path = 'products/'
         this.final = []
@@ -63,7 +65,9 @@ class Migrate {
                 let product_promises = Array.apply(null, { length: total_pages })
                     .map((data, ind) => {
                         return new Promise((resolve, reject) => {
-                            const progress = fs.readFileSync("progress.txt", 'utf-8')
+                            let progress = fs.readFileSync("progress.txt", 'utf-8')
+                            let progress_ids = fs.readFileSync("success_id.txt", "utf-8")
+                            this.progress_ids = progress_ids.split("\n")
                             let split_data = progress.split(";").length > 1 ? progress.split(";")[progress.split(";").length - 2] : ""
                             let split = split_data.split(",")
                             console.log("split is", split)
@@ -79,17 +83,23 @@ class Migrate {
                                         let data = res?.data?.rows
                                         let single_loop = data.map((single, index) => {
                                             return new Promise((resolve1, reject1) => {
-                                                try {
-                                                    Progressstream.write(`${ind},${index + 1};`, (err) => {
-                                                        if (err) {
-                                                            console.error('Error writing to stream:', err);
-                                                        }
-                                                    });
+                                                if (this.progress_ids.includes(single.sku)) {
+                                                    resolve1(`${ind},${index + 1}`)
                                                 }
-                                                catch (err) {
+                                                else {
+                                                    try {
 
+                                                        Progressstream.write(`${ind},${index + 1};`, (err) => {
+                                                            if (err) {
+                                                                console.error('Error writing to stream:', err);
+                                                            }
+                                                        });
+                                                    }
+                                                    catch (err) {
+
+                                                    }
+                                                    this.addToQueue({ single, ind, index, resolve1 });
                                                 }
-                                                this.addToQueue({ single, ind, index, resolve1 });
                                                 // Checking csv for the product
                                                 // let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku)
                                                 // let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku)
@@ -238,64 +248,82 @@ class Migrate {
         // Checking csv for the product
         let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku);
         let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku);
-
-        if (find.length) {
-            // if found update product in backend
-            this.Update(single, find[0])
-                .then(res => {
-                    this.csv.splice(findIndex, 1);
-                    successStream.write(`success in ${ind},${index + 1}\n`);
-                })
-                .catch(err => {
-                    failStream.write(`${ind},${index + 1}\n`);
-                })
-                .finally(res => {
+        if (!this.shouldStop) {
+            if (find.length) {
+                // if found update product in backend
+                this.Update(single, find[0])
+                    .then(res => {
+                        this.csv.splice(findIndex, 1);
+                        successStream.write(`${ind},${index + 1}\n`);
+                        successIdStream.write(`${single.sku}\n`);
+                    })
+                    .catch(err => {
+                        failStream.write(`${ind},${index + 1}\n`);
+                    })
+                    .finally(res => {
+                        resolve1(`${ind},${index + 1}`);
+                        // Remove the item from the queue and process the next item
+                        queue.shift();
+                        if (queue.length) {
+                            this.processQueue();
+                        }
+                    });
+            } else {
+                // else disable product in backend
+                if (single.variation_status === "False") {
+                    // avoid already disabled product
+                    successStream.write(`${ind},${index + 1}\n`);
+                    successIdStream.write(`${single.sku}\n`);
+                    queue.shift();
                     resolve1(`${ind},${index + 1}`);
                     // Remove the item from the queue and process the next item
-                    queue.shift();
                     if (queue.length) {
                         this.processQueue();
                     }
-                });
-        } else {
-            // else disable product in backend
-            this.Disable(single)
-                .then(res => {
-                    successStream.write(`success in ${ind},${index + 1}\n`);
-                    // this.csv.splice(findIndex, 1);
-                })
-                .catch(err => {
-                    failStream.write(`${ind},${index + 1}\n`);
-                })
-                .finally(res => {
-                    resolve1(`${ind},${index + 1}`);
-                    // Remove the item from the queue and process the next item
-                    queue.shift();
-                    if (queue.length) {
-                        this.processQueue();
-                    }
-                });
+                }
+                else
+                    this.Disable(single)
+                        .then(res => {
+                            successStream.write(`${ind},${index + 1}\n`);
+                            successIdStream.write(`${single.sku}\n`);
+                            // this.csv.splice(findIndex, 1);
+                        })
+                        .catch(err => {
+                            failStream.write(`${ind},${index + 1}\n`);
+                        })
+                        .finally(res => {
+                            resolve1(`${ind},${index + 1}`);
+                            // Remove the item from the queue and process the next item
+                            queue.shift();
+                            if (queue.length) {
+                                this.processQueue();
+                            }
+                        });
+            }
         }
     }
     async processCreateQueue() {
         const item = create_queue[0];
         const { data, index, resolve1 } = item;
-        this.Create(data)
-            .then(res => {
-                successStream.write(`${index + 1}\n`);
-                this.csv.splice(index, 1)
-            })
-            .catch(err => {
-                failStream.write(`${index + 1}\n`);
-            })
-            .finally(res => {
-                // Remove the item from the queue and process the next item
-                create_queue.shift();
-                if (create_queue.length) {
-                    this.processCreateQueue();
-                }
-                resolve1(`${index + 1}`)
-            })
+        if (!this.shouldStop) {
+            this.Create(data)
+                .then(res => {
+                    successStream.write(`${index + 1}\n`);
+                    successIdStream.write(`${data.ITEM_NUMBER}\n`);
+                    this.csv.splice(index, 1)
+                })
+                .catch(err => {
+                    failStream.write(`${index + 1}\n`);
+                })
+                .finally(res => {
+                    // Remove the item from the queue and process the next item
+                    create_queue.shift();
+                    if (create_queue.length) {
+                        this.processCreateQueue();
+                    }
+                    resolve1(`${index + 1}`)
+                })
+        }
     }
     addToQueue(item) {
         queue.push(item);
@@ -350,7 +378,11 @@ class Migrate {
             catch (err) {
                 console.log('Error in datas update', err)
             }
-            axios.post(UPDATE_URL, datas)
+            axios.post(UPDATE_URL, datas, {
+                headers: {
+                    "Cookie": cookie
+                }
+            })
                 .then(resp => {
                     resolve(resp.data)
                     successDetailStream.write(`success on update ${datas.sku} - ${datas.product_name}\n`)
@@ -366,7 +398,11 @@ class Migrate {
             let datas = {
                 "variation_id": data.variation_uuid
             }
-            axios.post(DISABLE_URL, datas)
+            axios.post(DISABLE_URL, datas, {
+                headers: {
+                    "Cookie": cookie
+                }
+            })
                 .then(resp => {
                     resolve(resp.data)
                     successDetailStream.write(`success on disable ${data.sku} - ${data.product}\n`)
@@ -415,7 +451,11 @@ class Migrate {
                 console.log('Error in datas', err)
             }
 
-            axios.post(CREATE_URL, datas)
+            axios.post(CREATE_URL, datas, {
+                headers: {
+                    "Cookie": cookie
+                }
+            })
                 .then(resp => {
                     resolve(resp.data)
                     successDetailStream.write(`success on creating ${file_to_update.ITEM_NUMBER} - ${file_to_update.ITEM_NAME}\n`)

@@ -332,6 +332,7 @@ function UploadWidget() {
 
   return (
     <main className="flex w-full flex-1 flex-col overflow-hidden">
+      {/* Cookie is {document.cookie.match("(^|;)\\s*" + "_ga_ZNZBZEKB2F" + "\\s*=\\s*([^;]+)")} */}
       <div className="grid items-start gap-8">
         {/* title + button */}
         <Title title="Upload Data" subtitle="CSV file with data to upload." />
