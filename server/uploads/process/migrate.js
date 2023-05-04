@@ -378,11 +378,7 @@ class Migrate {
             catch (err) {
                 console.log('Error in datas update', err)
             }
-            axios.post(UPDATE_URL, datas, {
-                headers: {
-                    "Cookie": cookie
-                }
-            })
+            axios.post(UPDATE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
                     successDetailStream.write(`success on update ${datas.sku} - ${datas.product_name}\n`)
@@ -398,11 +394,7 @@ class Migrate {
             let datas = {
                 "variation_id": data.variation_uuid
             }
-            axios.post(DISABLE_URL, datas, {
-                headers: {
-                    "Cookie": cookie
-                }
-            })
+            axios.post(DISABLE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
                     successDetailStream.write(`success on disable ${data.sku} - ${data.product}\n`)
@@ -451,11 +443,7 @@ class Migrate {
                 console.log('Error in datas', err)
             }
 
-            axios.post(CREATE_URL, datas, {
-                headers: {
-                    "Cookie": cookie
-                }
-            })
+            axios.post(CREATE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
                     successDetailStream.write(`success on creating ${file_to_update.ITEM_NUMBER} - ${file_to_update.ITEM_NAME}\n`)
