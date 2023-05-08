@@ -370,6 +370,7 @@ class Migrate {
                         "orientation": file_to_update.ORIENTATION ? [`${file_to_update.ORIENTATION}`] : [],
                         "publisher_id": file_to_update.PUBLISHER_ID,
                         "publisher_name": file_to_update.PUBLISHER_NAME,
+                        "image_url": file_to_update.LOWRES,
                         "media": "",
                         "weight": ""
                     }
@@ -434,6 +435,7 @@ class Migrate {
                         "orientation": file_to_update.ORIENTATION ? [`${file_to_update.ORIENTATION}`] : [],
                         "publisher_id": file_to_update.PUBLISHER_ID,
                         "publisher_name": file_to_update.PUBLISHER_NAME,
+                        "image_url": file_to_update.LOWRES,
                         "media": "",
                         "weight": ""
                     }

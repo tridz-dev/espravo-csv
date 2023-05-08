@@ -6,11 +6,6 @@ var fs = require('fs');
 const cors = require('cors');
 const EventEmitter = require('events');
 
-// Import Items Class
-const Items = require('./items.js');
-
-// Initiate Items Class
-const itemHandler = new Items("http://localhost");
 const ReRun = require("./rerun_failed")
 const RerunFailed = new ReRun("http://localhost")
 
@@ -178,12 +173,6 @@ router.get('/delete', function (req, res, next) {
     res.send('File deleted successfully');
   });
 
-})
-
-router.get('/items', function (req, res, next) {
-  console.log("Router Working");
-  console.log(itemHandler.fetchItems());
-  res.end();
 })
 
 // Base route
