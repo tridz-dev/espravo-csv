@@ -253,7 +253,6 @@ class Migrate {
                 // if found update product in backend
                 this.Update(single, find[0])
                     .then(res => {
-                        this.csv.splice(findIndex, 1);
                         successStream.write(`${ind},${index + 1}\n`);
                         successIdStream.write(`${single.sku}\n`);
                     })
@@ -261,6 +260,7 @@ class Migrate {
                         failStream.write(`${ind},${index + 1}\n`);
                     })
                     .finally(res => {
+                        this.csv.splice(findIndex, 1);
                         resolve1(`${ind},${index + 1}`);
                         // Remove the item from the queue and process the next item
                         queue.shift();

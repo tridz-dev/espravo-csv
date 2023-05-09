@@ -99,6 +99,7 @@ app.get("/clear_progress", (req, res) => {
   fs.writeFileSync("failed.txt", "")
   fs.writeFileSync("success_details.txt", "")
   fs.writeFileSync("error.txt", "")
+  fs.writeFileSync("success_id.txt", "")
 
   fs.writeFile("progress.txt", "", (err) => {
     if (err) throw err;
