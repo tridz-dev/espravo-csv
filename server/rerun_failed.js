@@ -1,61 +1,92 @@
 const file_path = "uploads/csv/current.csv"
 const API_URL = 'http://espfarnew.tridz.in/api/product/create';
-const FAILED_FILE = 'failed.txt';
+const FAILED_FILE = 'error.txt';
+const fs = require("fs");
+const axios = require("axios")
+const Migrate = require("./uploads/process/migrate")
+const MigrateProcess = new Migrate("http://localhost")
+const Progressstream = fs.createWriteStream('progress.txt', { flags: 'w' });
+const failStream = fs.createWriteStream('failed.txt', { flags: 'a' });
+const successStream = fs.createWriteStream('success.txt', { flags: 'a' });
+const successDetailStream = fs.createWriteStream('success_details.txt', { flags: 'a' });
+const Errorstream = fs.createWriteStream('error.txt', { flags: 'a' });
 class RerunFailed {
+  constructor() {
+    this.csv = []
+  }
   async rerunFailedItems() {
     try {
-      const failed = fs.readFileSync(FAILED_FILE, 'utf-8').split('\n');
-      for (let i = 0; i < failed.length; i++) {
-        if (!failed[i]) continue;
+      
+      const failed = fs.readFileSync(FAILED_FILE, 'utf-8')
+      const regex = /(update|disable|create)\s+(\S+):-/;
+      console.log("success")
+      try {
 
-        const failedLine = failed[i].split(',');
-        const chunkIndex = parseInt(failedLine[0]);
-        const lineNumber = parseInt(failedLine[1]);
-
-        const stream = fs.createReadStream(`${file_path}`);
-        let lineCounter = 0;
-        const csvStream = csv.parse({ headers: true }).on("data", async function (data) {
-          if (lineCounter === lineNumber) {
-            try {
-              let datas = {
-                "product_name": data.ITEM_NAME,
-                "sku": data.ITEM_NUMBER,
-                "weight": 200,
-                "data": {
-                  "price": "0",
-                  "vendor": "Tridz",
-                  "artist": [`${data.ARTIST}`],
-                  "available": data.AVAILABLE,
-                  "collections": category,
-                  "favourite": 1,
-                  "image_id": data.IMAGE_ID,
-                  "image_type": data.IMAGE_TYPE,
-                  "keyword": data.KEYWORD.split("|"),
-                  "max_height": data.MAX_HEIGHT,
-                  "max_width": data.MAX_WIDTH,
-                  "orientation": data.ORIENTATION,
-                  "publisher_id": data.PUBLISHER_ID,
-                  "publisher_name": data.PUBLISHER_NAME,
-                  "media": "",
-                  "weight": ""
-                }
-              }
-              const response = await axios.post(API_URL, datas);
-              console.log(`Line ${lineNumber + 1} of chunk ${chunkIndex} successfully processed`);
-              // Remove the line from the failed file
-              fs.writeFileSync(FAILED_FILE, failed.filter(item => item !== failed[i]).join('\n'));
-            } catch (error) {
-              console.error(`Line ${lineNumber + 1} of chunk ${chunkIndex} failed with error: ${error.message}`);
-            }
-
-            return;
-          }
-
-          lineCounter++;
-        });
-
-        stream.pipe(csvStream);
+        const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
+        this.csv = JSON.parse(jsonData)
       }
+      catch (err) {
+        console.error("CSV file not found:", err)
+      }
+      let result = failed.split("\n").map((line) => {
+        const match = line.match(regex);
+        return new Promise((resolve, reject) => {
+          console.log("match", match)
+          if (match) {
+            let id = match[2],
+              action = match[1]
+            if (action === "update") {
+              let find = this.csv.filter(x => x.ITEM_NUMBER == id)
+              let single = { "variation_uuid": id }
+              MigrateProcess.Update(single, find[0])
+                .then(res => {
+                  this.csv.splice(findIndex, 1)
+                  successStream.write(`success in ${line}\n`);
+                })
+                .catch(err => {
+                  failStream.write(`${line}`);
+                  // console.log("call error in update is", err)
+                })
+                .finally(res => {
+                  resolve(`${line}`)
+                })
+            }
+            else if (action === "disable") {
+              let single = { "variation_uuid": id }
+              MigrateProcess.Disable(single)
+                .then(res => {
+                  successStream.write(`success in ${line}\n`);
+                  this.csv.splice(findIndex, 1)
+                })
+                .catch(err => {
+                  // console.log("call error in disable is", err)
+                  failStream.write(`${line}\n`);
+                })
+                .finally(res => {
+                  resolve(`${line}`)
+                })
+            }
+            else {
+              let data = this.csv.filter(x => x.ITEM_NUMBER == id)
+              MigrateProcess.Create(data)
+                .then(res => {
+                  successStream.write(`${line}`);
+                  this.csv.splice(index, 1)
+                })
+                .catch(err => {
+                  if (errorIndex == 0) {
+                    // console.log("call error in create is", err)
+                    errorIndex++
+                  }
+                  failStream.write(`${line}`);
+                })
+                .finally(res => {
+                  resolve(`${line}`)
+                })
+            }
+          }
+        })
+      });
     } catch (error) {
       console.error(`Error processing failed items: ${error.message}`);
     }

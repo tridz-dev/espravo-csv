@@ -22,7 +22,22 @@ let csv_name = 'current.csv'
 // Initiate router
 var router = express.Router();
 
-
+const getItem = require("./items")
+const Items = new getItem()
+app.get('/getItems', async (req, res) => {
+  if (!req) {
+    return res.status(400).send('No file to fetch.');
+  }
+  Items.fetchItems()
+  res.send("Done fetching")
+})
+app.get('/disableDuplicates', async (req, res) => {
+  if (!req) {
+    return res.status(400).send('No file to fetch.');
+  }
+  Items.DuplicateDisable()
+  res.send("Done fetching")
+})
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, upload_dir);

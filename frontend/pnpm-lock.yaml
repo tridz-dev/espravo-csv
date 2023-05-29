@@ -16,6 +16,7 @@ specifiers:
   dotenv-expand: ^10.0.0
   flowbite: ^1.6.2
   flowbite-react: ^0.3.7
+  js-cookie: ^3.0.1
   localforage: ^1.10.0
   match-sorter: ^6.3.1
   postcss: ^8.4.21
@@ -40,6 +41,7 @@ dependencies:
   dotenv-expand: 10.0.0
   flowbite: 1.6.2
   flowbite-react: 0.3.7_uk2n2qz74dyej24yihkdfrsnym
+  js-cookie: 3.0.1
   localforage: 1.10.0
   match-sorter: 6.3.1
   react: 18.2.0
@@ -1872,6 +1874,11 @@ packages:
 
   /isexe/2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
+    dev: false
+
+  /js-cookie/3.0.1:
+    resolution: {integrity: sha512-+0rgsUXZu4ncpPxRL+lNEptWMOWl9etvPHc/koSRp6MPwpRYAhmk0dUG00J4bxVV3r9uUzfo24wW0knS07SKSw==}
+    engines: {node: '>=12'}
     dev: false
 
   /js-tokens/4.0.0:
