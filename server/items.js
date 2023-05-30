@@ -65,9 +65,10 @@ class Items {
     process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
     data.forEach((item) => {
       let sku = item.sku;
+      let data = item.variation_uuid
       skuCounts[sku] = (skuCounts[sku] || 0) + 1;
       if (skuCounts[sku] === 2) {
-        duplicates.push(sku);
+        duplicates.push(data);
       }
     });
     console.log("duplicate length", duplicates.length)
