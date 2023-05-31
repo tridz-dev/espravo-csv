@@ -6,10 +6,10 @@ const FAILED_FILE = 'failed.txt';
 const SUCCESS_FILE = "success.txt"
 const SUCCESS_DETAIL = "success_details.txt"
 const ERROR_FILE = "error.txt"
-const API_URL = "https://esp-be.hzdev.tridz.in/"
-const CREATE_URL = 'https://esp-be.hzdev.tridz.in//api/product/create';
-const UPDATE_URL = "https://esp-be.hzdev.tridz.in//api/product/update"
-const DISABLE_URL = "https://esp-be.hzdev.tridz.in//api/product/disable"
+const API_URL = "https://esp-be.hzdev.tridz.in"
+const CREATE_URL = 'https://esp-be.hzdev.tridz.in/api/product/create';
+const UPDATE_URL = "https://esp-be.hzdev.tridz.in/api/product/update"
+const DISABLE_URL = "https://esp-be.hzdev.tridz.in/api/product/disable"
 const Progressstream = fs.createWriteStream('progress.txt', { flags: 'w' });
 const failStream = fs.createWriteStream('failed.txt', { flags: 'a' });
 const successStream = fs.createWriteStream('success.txt', { flags: 'a' });
@@ -27,7 +27,7 @@ class Migrate {
         // Parse the JSON data into a JavaScript object
         this.csv = []
         this.progress_ids = []
-        this.base_url = "https://esp-be.hzdev.tridz.in/";
+        this.base_url = "https://esp-be.hzdev.tridz.in";
         this.path = 'products/'
         this.final = []
         this.progress_text = progress
