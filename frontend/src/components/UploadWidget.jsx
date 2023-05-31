@@ -5,7 +5,9 @@ import Title from "../components/global/page/title";
 // import Upload from "../pages/Upload";
 // const API_URL = "http://localhost:3000"
 const API_URL = "https://esp-csv.hzdev.tridz.in"
+const API = import.meta.env.VITE_URL
 function UploadWidget() {
+  console.log("backend url", API)
   const [file, setFile] = useState(null);
   const [intervalId, setIntervalId] = useState([]);
   const [uploaded, setUploaded] = useState(null);
