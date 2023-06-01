@@ -50,7 +50,7 @@ class Migrate {
         axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`,
             {
                 headers: {
-                    'Authorization': 'Basic YWRtaW46TWlsbC1JbmNvcnBvcmF0ZS1DdXNoaW9uLUVwaXNkZXMtRG9udC02',
+                    'Authorization': 'Basic YWRtaW46SGFsZi1DYXhuLVByZWNpb3VzLUNvbnF1ZXJ4ci02',
                 }
             }
         )
