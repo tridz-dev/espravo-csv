@@ -81,6 +81,7 @@ class Migrate {
                                 )
                                     .then(res => {
                                         let data = res?.data?.rows
+                                        console.log("rows", data)
                                         let single_loop = data.map((single, index) => {
                                             return new Promise((resolve1, reject1) => {
                                                 if (this.progress_ids.includes(single.sku)) {
@@ -141,12 +142,12 @@ class Migrate {
                                                 resolve(resolved)
                                             })
                                             .catch(err => {
-                                                console.log("Error in single loop completed", err)
+                                                console.error("Error in single loop completed", err)
                                             })
                                     })
                                     .catch(err => {
                                         reject(err)
-                                        // console.log("error in response", err)
+                                        console.error("error in get", err)
                                         // return err
                                     })
                             }
@@ -225,7 +226,7 @@ class Migrate {
                                     return "completed"
                                 })
                                 .catch(err => {
-                                    console.log(`final error is${err}`)
+                                    console.error(`final error is${err}`)
                                 })
                         }
                         catch (err) {
@@ -233,11 +234,11 @@ class Migrate {
                         }
                     })
                     .catch(err => {
-                        console.log("error in fetch data", err)
+                        console.error("error in fetch data", err)
                     })
             })
             .catch(error => {
-                console.log(error);
+                console.error(error);
                 return false
             });
     }
