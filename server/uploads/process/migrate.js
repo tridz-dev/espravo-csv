@@ -46,7 +46,7 @@ class Migrate {
         }
         console.log("csv uploaded", this.csv.length)
         let items_per_page = 500
-        process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+        // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
         axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`,
             {
                 headers: {
@@ -88,17 +88,16 @@ class Migrate {
                                                     resolve1(`${ind},${index + 1}`)
                                                 }
                                                 else {
-                                                    try {
+                                                    // try {
+                                                    //     Progressstream.write(`${ind},${index + 1};`, (err) => {
+                                                    //         if (err) {
+                                                    //             console.error('Error writing to stream:', err);
+                                                    //         }
+                                                    //     });
+                                                    // }
+                                                    // catch (err) {
 
-                                                        Progressstream.write(`${ind},${index + 1};`, (err) => {
-                                                            if (err) {
-                                                                console.error('Error writing to stream:', err);
-                                                            }
-                                                        });
-                                                    }
-                                                    catch (err) {
-
-                                                    }
+                                                    // }
                                                     this.addToQueue({ single, ind, index, resolve1 });
                                                 }
                                                 // Checking csv for the product
@@ -178,16 +177,16 @@ class Migrate {
                             let complete = this.csv.map((data, index) => {
                                 return new Promise((resolve1, reject1) => {
                                     if (!this.shouldStop) {
-                                        try {
-                                            Progressstream.write(`${index + 1};`, (err) => {
-                                                if (err) {
-                                                    console.error('Error writing to stream:', err);
-                                                }
-                                            });
-                                        }
-                                        catch (err) {
+                                        // try {
+                                        //     Progressstream.write(`${index + 1};`, (err) => {
+                                        //         if (err) {
+                                        //             console.error('Error writing to stream:', err);
+                                        //         }
+                                        //     });
+                                        // }
+                                        // catch (err) {
 
-                                        }
+                                        // }
                                         this.addToCreateQueue({ data, index, resolve1 });
                                         // this.Create(data)
                                         //     .then(res => {
@@ -255,6 +254,7 @@ class Migrate {
                 this.csv.splice(findIndex, 1);
                 resolve1(`${ind},${index + 1}`);
                 successStream.write(`${ind},${index + 1}\n`);
+                Progressstream.write(`${ind},${index + 1};`)
                 successIdStream.write(`${single.sku}\n`);
                 // Remove the item from the queue and process the next item
                 queue.shift();
@@ -284,6 +284,7 @@ class Migrate {
                 if (single.variation_status === "False") {
                     // avoid already disabled product
                     successStream.write(`${ind},${index + 1}\n`);
+                    Progressstream.write(`${ind},${index + 1};`)
                     successIdStream.write(`${single.sku}\n`);
                     queue.shift();
                     resolve1(`${ind},${index + 1}`);
@@ -296,6 +297,7 @@ class Migrate {
                     this.Disable(single)
                         .then(res => {
                             successStream.write(`${ind},${index + 1}\n`);
+                            Progressstream.write(`${ind},${index + 1};`)
                             successIdStream.write(`${single.sku}\n`);
                             // this.csv.splice(findIndex, 1);
                         })
@@ -320,6 +322,7 @@ class Migrate {
             this.Create(data)
                 .then(res => {
                     successStream.write(`${index + 1}\n`);
+                    Progressstream.write(`${index + 1};`)
                     successIdStream.write(`${data.ITEM_NUMBER}\n`);
                     this.csv.splice(index, 1)
                 })

@@ -144,6 +144,8 @@ app.get("/progress", (req, res) => {
       console.error(err);
       res.status(500).send('Error reading data file');
     } else {
+      let arr = data.split(";")
+      let pages = arr.filter(x => x.includes(",500"))
       let datas = data.split(";").length > 1 ? data.split(";")[data.split(";").length - 2] : ""
       const final = { "loop": loop, "csv": csv, "data": data, "progress_txt": datas }
       console.log("progress test", { "loop": loop, "csv": csv, "progress_txt": datas })
@@ -165,7 +167,8 @@ app.get("/progress", (req, res) => {
       }
       else {
         let split = datas.split(",")
-        progress = ((((Number(split[0])) * 500) + Number(split[1])) / Number(final.loop)) * 50
+        progress = (pages.length / Math.ceil(Number(final.loop) / 500)) * 50
+        // progress = ((((Number(split[0])) * 500) + Number(split[1])) / Number(final.loop)) * 50
         res.json(progress);
       }
     }
