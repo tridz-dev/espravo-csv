@@ -16,7 +16,9 @@ function UploadWidget() {
   const [progress, setProgress] = useState(0);
   let interval
   const handleFileChange = (e) => {
+    let file = e.target.files[0]
     setFile(e.target.files[0]);
+    sessionStorage.setItem("filename", file?.name)
     console.log(file);
   };
   useEffect(() => {
@@ -26,11 +28,18 @@ function UploadWidget() {
       if (search == "start") {
         console.log("change on params", "uploaded")
         setUploaded(1)
-        setFile("file")
+        let filename = sessionStorage.getItem("filename")
+        // console.log("session storage", sessionStorage.getItem("filename"))
+        let file = { name: filename }
+        setFile(file)
         Progress_check()
         setMigrated(1)
+        setMigrateStage(`${search}`)
       }
-      setMigrateStage(`${search}`)
+      else if (search)
+        setMigrateStage(`${search}`)
+      else
+        setMigrateStage("initial")
     }
   }, [searchParams])
   const clearFile = () => {
