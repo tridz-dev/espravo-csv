@@ -1,59 +1,56 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { IconFileSpreadsheet } from "@tabler/icons";
+import { useSearchParams } from "react-router-dom"
 import Title from "../components/global/page/title";
 // import Upload from "../pages/Upload";
-// const API_URL = "http://localhost:3000"
+// const API_URL = "http://localhost:3001"
 const API_URL = "https://csv-be.tridz.in"
 function UploadWidget() {
+  let [searchParams, setSearchParams] = useSearchParams();
   const [file, setFile] = useState(null);
   const [intervalId, setIntervalId] = useState([]);
   const [uploaded, setUploaded] = useState(null);
   const [migrated, setMigrated] = useState(null);
   const [migrate_stage, setMigrateStage] = useState("initial");
-  const [rerun, setReRun] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [pause, setPause] = useState(false)
-  const [restart, setRestart] = useState(false)
-  const [total, setTotal] = useState(0);
   let interval
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     console.log(file);
   };
-
+  useEffect(() => {
+    if (searchParams) {
+      console.log("change on params", searchParams.get("state"))
+      let search = searchParams.get("state")
+      if (search == "start") {
+        console.log("change on params", "uploaded")
+        setUploaded(1)
+        setFile("file")
+        Progress_check()
+        setMigrated(1)
+      }
+      setMigrateStage(`${search}`)
+    }
+  }, [searchParams])
   const clearFile = () => {
     console.log(file);
     setFile(null)
     console.log("cleared");
     console.log(file);
   };
-  const ReRunFailed = () => {
-    axios
-      .get(API_URL + "/rerun")
-      .then((res) => {
-        setReRun(true)
-        console.log(res.data);
-      })
-      .catch((err) => {
-        // setUploaded(-1);
-        console.error(err);
-      });
-  }
   const deleteFile = () => {
-    // console.log(file);
-    // setFile(null);
-    // setUploaded(null);
-    // console.log("deleted");
-    // console.log(file);
     axios
       .get(API_URL + "/delete")
       .then((res) => {
         setFile(null);
+        setUploaded(null);
         console.log(res.data);
+        setSearchParams([])
       })
       .catch((err) => {
         // setUploaded(-1);
+        setUploaded(null);
         console.error(err);
       });
 
@@ -87,6 +84,7 @@ function UploadWidget() {
             clearIntervals(intervalId)
             interval = 0
             setMigrateStage("completed")
+            setSearchParams({ state: "completed" })
             console.log("migration progress fetch is stoping")
           }
           else {
@@ -104,6 +102,8 @@ function UploadWidget() {
     setProgress(0)
     setMigrated(1)
     setMigrateStage("start")
+    setSearchParams({ state: "start" })
+
     if (detail === "fresh_start") {
       axios.get(API_URL + "/clear_progress")
         .then(res => {
@@ -150,12 +150,12 @@ function UploadWidget() {
       .catch(err => {
         console.log("error in", err)
       })
+    setSearchParams({ state: "pause" })
     setMigrateStage("pause")
-    setPause(true)
   }
   const RestartMigrate = () => {
-    setPause(false)
     migrateFile()
+    setSearchParams({ state: "start" })
     setMigrateStage("start")
   }
   const setIntervals = (id) => {
@@ -183,6 +183,7 @@ function UploadWidget() {
       .catch(err => {
         console.log("error in", err)
       })
+    setSearchParams({ state: "stop" })
     setMigrateStage("stop")
   }
 
@@ -302,12 +303,12 @@ function UploadWidget() {
           <div>
             <input type="file" name="jsonFile" onChange={handleFileChange} />
 
-            <button
+            {/* <button
               className="relative inline-flex h-9 items-center border border-slate-900 bg-slate-900 px-4 py-1 text-sm font-medium text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
               onClick={handleUpload}
             >
-              Upload
-            </button>
+              Uploads
+            </button> */}
           </div>
         )
         }
