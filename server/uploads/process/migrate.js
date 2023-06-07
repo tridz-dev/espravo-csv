@@ -88,7 +88,31 @@ class Migrate {
                                                     resolve1(`${ind},${index + 1}`)
                                                 }
                                                 else {
-                                                    this.addToQueue({ single, ind, index, resolve1 });
+                                                    let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku);
+                                                    let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku);
+                                                    if (!this.shouldStop) {
+                                                        if (find.length) {
+                                                            // if found do nothing
+                                                            this.csv.splice(findIndex, 1);
+                                                            resolve1(`${ind},${index + 1}`);
+                                                            successStream.write(`${ind},${index + 1}\n`);
+                                                            Progressstream.write(`${ind},${index + 1};`)
+                                                            successIdStream.write(`${single.sku}\n`);
+                                                        }
+                                                        else {
+                                                            // else disable product in backend
+                                                            if (single.variation_status === "False" && single.product_status === "False") {
+                                                                // avoid already disabled product
+                                                                successStream.write(`${ind},${index + 1}\n`);
+                                                                Progressstream.write(`${ind},${index + 1};`)
+                                                                successIdStream.write(`${single.sku}\n`);
+                                                                resolve1(`${ind},${index + 1}`);
+                                                            }
+                                                            else {
+                                                                this.addToQueue({ single, ind, index, resolve1 });
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             })
                                         })
@@ -176,74 +200,31 @@ class Migrate {
     async processQueue() {
         const item = queue[0];
         const { single, ind, index, resolve1 } = item;
-
         // Checking csv for the product
         let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku);
         let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku);
         if (!this.shouldStop) {
             if (find.length) {
-                // if found do nothing
-                this.csv.splice(findIndex, 1);
-                resolve1(`${ind},${index + 1}`);
-                successStream.write(`${ind},${index + 1}\n`);
-                Progressstream.write(`${ind},${index + 1};`)
-                successIdStream.write(`${single.sku}\n`);
-                // Remove the item from the queue and process the next item
-                queue.shift();
-                if (queue.length) {
-                    this.processQueue();
-                }
-                // // if found update product in backend
-                // this.Update(single, find[0])
-                //     .then(res => {
-                //         successStream.write(`${ind},${index + 1}\n`);
-                //         successIdStream.write(`${single.sku}\n`);
-                //     })
-                //     .catch(err => {
-                //         failStream.write(`${ind},${index + 1}\n`);
-                //     })
-                //     .finally(res => {
-                //         this.csv.splice(findIndex, 1);
-                //         resolve1(`${ind},${index + 1}`);
-                //         // Remove the item from the queue and process the next item
-                //         queue.shift();
-                //         if (queue.length) {
-                //             this.processQueue();
-                //         }
-                //     });
             } else {
                 // else disable product in backend
-                if (single.variation_status === "False" && single.product_status === "False") {
-                    // avoid already disabled product
-                    successStream.write(`${ind},${index + 1}\n`);
-                    Progressstream.write(`${ind},${index + 1};`)
-                    successIdStream.write(`${single.sku}\n`);
-                    queue.shift();
-                    resolve1(`${ind},${index + 1}`);
-                    // Remove the item from the queue and process the next item
-                    if (queue.length) {
-                        this.processQueue();
-                    }
-                }
-                else
-                    this.Disable(single)
-                        .then(res => {
-                            successStream.write(`${ind},${index + 1}\n`);
-                            Progressstream.write(`${ind},${index + 1};`)
-                            successIdStream.write(`${single.sku}\n`);
-                            // this.csv.splice(findIndex, 1);
-                        })
-                        .catch(err => {
-                            failStream.write(`${ind},${index + 1}\n`);
-                        })
-                        .finally(res => {
-                            resolve1(`${ind},${index + 1}`);
-                            // Remove the item from the queue and process the next item
-                            queue.shift();
-                            if (queue.length) {
-                                this.processQueue();
-                            }
-                        });
+                this.Disable(single)
+                    .then(res => {
+                        successStream.write(`${ind},${index + 1}\n`);
+                        Progressstream.write(`${ind},${index + 1};`)
+                        successIdStream.write(`${single.sku}\n`);
+                        // this.csv.splice(findIndex, 1);
+                    })
+                    .catch(err => {
+                        failStream.write(`${ind},${index + 1}\n`);
+                    })
+                    .finally(res => {
+                        resolve1(`${ind},${index + 1}`);
+                        // Remove the item from the queue and process the next item
+                        queue.shift();
+                        if (queue.length) {
+                            this.processQueue();
+                        }
+                    });
             }
         }
     }
