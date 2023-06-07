@@ -1,94 +1,358 @@
 const fs = require("fs");
 const axios = require("axios")
+const path = require("path")
 const PROGRESS_FILE = 'progress.txt';
 const FAILED_FILE = 'failed.txt';
 const SUCCESS_FILE = "success.txt"
+const SUCCESS_DETAIL = "success_details.txt"
 const ERROR_FILE = "error.txt"
-const CREATE_URL = '/api/product/create';
-const UPDATE_URL = "/api/product/update"
-const DISABLE_URL = "/api/product/disable"
-const API_URL = "http://espfarnew.tridz.in"
-let upload_dir = 'uploads/csv/';
-
-class Process {
-    constructor(data) {
-        console.log(data)
+const API_URL = "https://esp-be.hzdev.tridz.in"
+const CREATE_URL = 'https://esp-be.hzdev.tridz.in/api/product/create';
+const UPDATE_URL = "https://esp-be.hzdev.tridz.in/api/product/update"
+const DISABLE_URL = "https://esp-be.hzdev.tridz.in/api/product/disable"
+const Progressstream = fs.createWriteStream('progress.txt', { flags: 'w' });
+const failStream = fs.createWriteStream('failed.txt', { flags: 'a' });
+const successStream = fs.createWriteStream('success.txt', { flags: 'a' });
+const successIdStream = fs.createWriteStream("success_id.txt", { flags: "a" })
+const successDetailStream = fs.createWriteStream('success_details.txt', { flags: 'a' });
+const Errorstream = fs.createWriteStream('error.txt', { flags: 'a' });
+const queue = [];
+const create_queue = [];
+const cookie = "SESSec5a92862a48f121bdb88ebb0ed1b008=aXUXr7tf66CJqYUbQz47vsD9MHnqHDYHluygDdLnoeQ"
+class Progress {
+    constructor(name) {
         // Read the contents of the JSON file
-        const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
-        const progress = fs.readFileSync("uploads/process/progress.txt", 'utf-8')
-
+        // const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
+        const progress = fs.readFileSync("progress.txt", 'utf-8')
         // Parse the JSON data into a JavaScript object
-        this.csv = JSON.parse(jsonData);
-        this.progress = progress
-        this.data = data
+        this.csv = []
+        this.progress_ids = []
+        this.base_url = "https://esp-be.hzdev.tridz.in";
+        this.path = 'products/'
+        this.final = []
+        this.progress_text = progress
+        this.shouldStop = false
     }
-    static async UpdateDisable(data) {
-        const thiss = new Process()
-        console.log("progress txt", thiss.progress)
-        if (!thiss.progress.includes(`${data.index}`)) {
-            let promsie = data?.data.map((single, ind) => {
-                return new Promise((resolve, reject) => {
-                    let find = thiss.csv.filter(x => x.ITEM_NUMBER == single.sku)
-                    let findIndex = thiss.csv.findIndex(x => x.ITEM_NUMBER == single.sku)
-                    if (find.length) {
-                        // if found update product in backend
-                        thiss.Update(single, find[0])
-                            .then(res => {
-                                thiss.csv.splice(findIndex, 1)
-                                fs.appendFileSync(SUCCESS_FILE, `success in ${ind}\n`);
-                            })
-                            .catch(err => {
-                                fs.appendFileSync(FAILED_FILE, `${ind}\n`);
-                                // console.log("call error in update is", err)
-                            })
-                            .finally(res => {
-                                fs.writeFileSync(PROGRESS_FILE, `${ind}\n`);
-                                resolve(data.index)
-                            })
-                    }
-                    else {
-                        // else disable product in backend
+    // Add a new item to the queue
+    async UpdateDisable() {
+        console.log("success")
+        try {
 
-                        thiss.Disable(single)
-                            .then(res => {
-                                fs.appendFileSync(SUCCESS_FILE, `success in ${ind}\n`);
-                                thiss.csv.splice(findIndex, 1)
-                            })
-                            .catch(err => {
-                                // console.log("call error in disable is", err)
-                                fs.appendFileSync(FAILED_FILE, `${ind}\n`);
-                            })
-                            .finally(res => {
-                                fs.writeFileSync(PROGRESS_FILE, `${ind}\n`);
-                                resolve(data.index)
-                            })
-                    }
-                })
-            })
-            Promise.all(promsie)
-                .then(async final => {
-                    fs.writeFile(`${upload_dir}output.json`, JSON.stringify(thiss.csv), (err) => {
-                        if (err) {
-                            console.error(`Error on CSV update: ${err}`);
-                        } else {
-                            console.log(`CSV updated with row ${final[0]}`)
+            const jsonData = fs.readFileSync("uploads/csv/output.json", 'utf-8');
+            this.csv = JSON.parse(jsonData)
+        }
+        catch (err) {
+            console.error("CSV file not found:", err)
+        }
+        console.log("csv uploaded", this.csv.length)
+        let items_per_page = 500
+        // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+        axios.get(`${API_URL}/api/products/vendor?page=0&items_per_page=1`,
+            {
+                headers: {
+                    'Authorization': 'Basic YWRtaW46SGFsZi1DYXhuLVByZWNpb3VzLUNvbnF1ZXJ4ci02',
+                }
+            }
+        )
+            .then(response => {
+                let total_pages = Math.ceil(response.data.pager?.total_items / items_per_page)
+                let total_product = response.data.pager?.total_items
+                // let total_pages = 2
+                // let total_product = 50
+                // console.log(`total pages ${total_pages}`)
+                // total pages calculated to fetch all data
+                fs.writeFileSync("looplength.json", `${total_product}`)
+                let product_promises = Array.apply(null, { length: total_pages })
+                    .map((data, ind) => {
+                        return new Promise((resolve, reject) => {
+                            let progress = fs.readFileSync("progress.txt", 'utf-8')
+                            let progress_ids = fs.readFileSync("success_id.txt", "utf-8")
+                            this.progress_ids = progress_ids.split("\n")
+                            let split_data = progress.split(";").length > 1 ? progress.split(";")[progress.split(";").length - 2] : ""
+                            let split = split_data.split(",")
+                            console.log("split is", split)
+                            if ((split.length > 1 && ind > split[0] || split[0] === "") && !this.shouldStop) {
+                                axios.get(`${API_URL}/api/products/vendor?page=${ind}&items_per_page=${items_per_page}`,
+                                    {
+                                        headers: {
+                                            'Authorization': 'Basic YWRtaW46SGFsZi1DYXhuLVByZWNpb3VzLUNvbnF1ZXJ4ci02',
+                                        }
+                                    }
+                                )
+                                    .then(res => {
+                                        let data = res?.data?.rows
+                                        // console.log("rows", data)
+                                        let single_loop = data.map((single, index) => {
+                                            return new Promise((resolve1, reject1) => {
+                                                if (this.progress_ids.includes(single.sku)) {
+                                                    resolve1(`${ind},${index + 1}`)
+                                                }
+                                                else {
+                                                    // try {
+                                                    //     Progressstream.write(`${ind},${index + 1};`, (err) => {
+                                                    //         if (err) {
+                                                    //             console.error('Error writing to stream:', err);
+                                                    //         }
+                                                    //     });
+                                                    // }
+                                                    // catch (err) {
+
+                                                    // }
+                                                    this.addToQueue({ single, ind, index, resolve1 });
+                                                }
+                                                // Checking csv for the product
+                                                // let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku)
+                                                // let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku)
+                                                // if (find.length) {
+                                                //     // if found update product in backend
+                                                //     this.Update(single, find[0])
+                                                //         .then(res => {
+                                                //             this.csv.splice(findIndex, 1)
+                                                //             successStream.write(`success in ${ind},${index + 1}\n`);
+                                                //         })
+                                                //         .catch(err => {
+                                                //             failStream.write(`${ind},${index + 1}\n`);
+                                                //             // console.log("call error in update is", err)
+                                                //         })
+                                                //         .finally(res => {
+                                                //             resolve1(`${ind},${index + 1}`)
+                                                //         })
+                                                // }
+                                                // else {
+                                                //     // else disable product in backend
+                                                //     this.Disable(single)
+                                                //         .then(res => {
+                                                //             successStream.write(`success in ${ind},${index + 1}\n`);
+                                                //             this.csv.splice(findIndex, 1)
+                                                //         })
+                                                //         .catch(err => {
+                                                //             // console.log("call error in disable is", err)
+                                                //             failStream.write(`${ind},${index + 1}\n`);
+                                                //         })
+                                                //         .finally(res => {
+                                                //             resolve1(`${ind},${index + 1}`)
+                                                //         })
+                                                // }
+                                            })
+                                        })
+                                        Promise.all(single_loop)
+                                            .then(resolved => {
+                                                console.log("Single loop completed", resolved[single_loop.length - 1])
+                                                resolve(resolved)
+                                            })
+                                            .catch(err => {
+                                                console.error("Error in single loop completed", err)
+                                            })
+                                    })
+                                    .catch(err => {
+                                        reject(err)
+                                        console.error("error in get", err)
+                                        // return err
+                                    })
+                            }
+                            else {
+                                console.log("skipped", ind)
+                                resolve(1)
+                            }
+                        });
+                    })
+                Promise.all(product_promises)
+                    .then(resp => {
+                        //Adding remaining product from csv to backend After API loop completed
+                        const length = this.csv.length
+                        console.log("loop completed remaining length", this.csv.length)
+                        try {
+                            Progressstream.write(`0;`, (err) => {
+                                if (err) {
+                                    console.error('Error writing to stream:', err);
+                                }
+                            });
                         }
-                    });
-                    if (fs.readFileSync("uploads/process/progress.txt", 'utf-8')) {
-                        fs.appendFileSync(`uploads/process/progress.txt`, `,${final[0]}`)
-                        return true
+                        catch (err) {
+
+                        }
+                        fs.writeFileSync("csvlength.json", `${this.csv.length}`)
+                        try {
+                            let errorIndex = 0
+                            let complete = this.csv.map((data, index) => {
+                                return new Promise((resolve1, reject1) => {
+                                    if (!this.shouldStop) {
+                                        // try {
+                                        //     Progressstream.write(`${index + 1};`, (err) => {
+                                        //         if (err) {
+                                        //             console.error('Error writing to stream:', err);
+                                        //         }
+                                        //     });
+                                        // }
+                                        // catch (err) {
+
+                                        // }
+                                        this.addToCreateQueue({ data, index, resolve1 });
+                                        // this.Create(data)
+                                        //     .then(res => {
+                                        //         successStream.write(`${index + 1}\n`);
+                                        //         this.csv.splice(index, 1)
+                                        //     })
+                                        //     .catch(err => {
+                                        //         if (errorIndex == 0) {
+                                        //             // console.log("call error in create is", err)
+                                        //             errorIndex++
+                                        //         }
+                                        //         failStream.write(`${index + 1}\n`);
+                                        //     })
+                                        //     .finally(res => {
+                                        //         resolve1(`${index + 1}`)
+                                        //     })
+                                    }
+                                    else {
+                                        resolve1("")
+                                    }
+                                })
+                            })
+                            Promise.all(complete)
+                                .then((final) => {
+                                    console.log("migrate process completed")
+                                    try {
+                                        Progressstream.write(`${length};`, (err) => {
+                                            if (err) {
+                                                console.error('Error writing to stream:', err);
+                                            }
+                                        });
+                                    }
+                                    catch (error) {
+
+                                    }
+                                    return "completed"
+                                })
+                                .catch(err => {
+                                    console.error(`final error is${err}`)
+                                })
+                        }
+                        catch (err) {
+                            console.log("loop completed error", err)
+                        }
+                    })
+                    .catch(err => {
+                        console.error("error in fetch data", err)
+                    })
+            })
+            .catch(error => {
+                console.error(error);
+                return false
+            });
+    }
+    async processQueue() {
+        const item = queue[0];
+        const { single, ind, index, resolve1 } = item;
+
+        // Checking csv for the product
+        let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku);
+        let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku);
+        if (!this.shouldStop) {
+            if (find.length) {
+                // if found do nothing
+                this.csv.splice(findIndex, 1);
+                resolve1(`${ind},${index + 1}`);
+                successStream.write(`${ind},${index + 1}\n`);
+                Progressstream.write(`${ind},${index + 1};`)
+                successIdStream.write(`${single.sku}\n`);
+                // Remove the item from the queue and process the next item
+                queue.shift();
+                if (queue.length) {
+                    this.processQueue();
+                }
+                // // if found update product in backend
+                // this.Update(single, find[0])
+                //     .then(res => {
+                //         successStream.write(`${ind},${index + 1}\n`);
+                //         successIdStream.write(`${single.sku}\n`);
+                //     })
+                //     .catch(err => {
+                //         failStream.write(`${ind},${index + 1}\n`);
+                //     })
+                //     .finally(res => {
+                //         this.csv.splice(findIndex, 1);
+                //         resolve1(`${ind},${index + 1}`);
+                //         // Remove the item from the queue and process the next item
+                //         queue.shift();
+                //         if (queue.length) {
+                //             this.processQueue();
+                //         }
+                //     });
+            } else {
+                // else disable product in backend
+                if (single.variation_status === "False" && single.product_status === "False") {
+                    // avoid already disabled product
+                    successStream.write(`${ind},${index + 1}\n`);
+                    Progressstream.write(`${ind},${index + 1};`)
+                    successIdStream.write(`${single.sku}\n`);
+                    queue.shift();
+                    resolve1(`${ind},${index + 1}`);
+                    // Remove the item from the queue and process the next item
+                    if (queue.length) {
+                        this.processQueue();
                     }
-                    else {
-                        fs.appendFileSync(`uploads/process/progress.txt`, `${final[0]}`)
-                        return true
-                    }
-                })
-        }
-        else {
-            return true
+                }
+                else
+                    this.Disable(single)
+                        .then(res => {
+                            successStream.write(`${ind},${index + 1}\n`);
+                            Progressstream.write(`${ind},${index + 1};`)
+                            successIdStream.write(`${single.sku}\n`);
+                            // this.csv.splice(findIndex, 1);
+                        })
+                        .catch(err => {
+                            failStream.write(`${ind},${index + 1}\n`);
+                        })
+                        .finally(res => {
+                            resolve1(`${ind},${index + 1}`);
+                            // Remove the item from the queue and process the next item
+                            queue.shift();
+                            if (queue.length) {
+                                this.processQueue();
+                            }
+                        });
+            }
         }
     }
-
+    async processCreateQueue() {
+        const item = create_queue[0];
+        const { data, index, resolve1 } = item;
+        if (!this.shouldStop) {
+            this.Create(data)
+                .then(res => {
+                    successStream.write(`${index + 1}\n`);
+                    Progressstream.write(`${index + 1};`)
+                    successIdStream.write(`${data.ITEM_NUMBER}\n`);
+                    this.csv.splice(index, 1)
+                })
+                .catch(err => {
+                    failStream.write(`${index + 1}\n`);
+                })
+                .finally(res => {
+                    // Remove the item from the queue and process the next item
+                    create_queue.shift();
+                    if (create_queue.length) {
+                        this.processCreateQueue();
+                    }
+                    resolve1(`${index + 1}`)
+                })
+        }
+    }
+    addToQueue(item) {
+        queue.push(item);
+        if (queue.length === 1) {
+            // If the queue was previously empty, start processing it
+            this.processQueue();
+        }
+    }
+    addToCreateQueue(item) {
+        create_queue.push(item);
+        if (create_queue.length === 1) {
+            // If the queue was previously empty, start processing it
+            this.processCreateQueue();
+        }
+    }
     async Update(data, file_to_update) {
         return new Promise((resolve, reject) => {
             let datas
@@ -114,12 +378,13 @@ class Process {
                         "favourite": 0,
                         "image_id": file_to_update.IMAGE_ID,
                         "image_type": file_to_update.IMAGE_TYPE,
-                        "keyword": file_to_update.KEYWORD.split("|"),
+                        "keyword": file_to_update.KEYWORD ? file_to_update.KEYWORD.split('|').filter(str => str.length > 0) : [],
                         "max_height": file_to_update.MAX_HEIGHT,
                         "max_width": file_to_update.MAX_WIDTH,
                         "orientation": file_to_update.ORIENTATION ? [`${file_to_update.ORIENTATION}`] : [],
                         "publisher_id": file_to_update.PUBLISHER_ID,
                         "publisher_name": file_to_update.PUBLISHER_NAME,
+                        "image_url": file_to_update.LOWRES,
                         "media": "",
                         "weight": ""
                     }
@@ -131,9 +396,10 @@ class Process {
             axios.post(UPDATE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
+                    successDetailStream.write(`success on update ${datas.sku} - ${datas.product_name}\n`)
                 })
                 .catch(err => {
-                    fs.appendFileSync(ERROR_FILE, `error on update ${file_to_update.ITEM_NUMBER}:-${(err)}\n`);
+                    Errorstream.write(`error on update ${file_to_update.ITEM_NUMBER} ${datas.variation_id}:-${(err)}\n`);
                     reject(err)
                 })
         })
@@ -146,12 +412,66 @@ class Process {
             axios.post(DISABLE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
+                    successDetailStream.write(`success on disable ${data.sku} - ${data.product}\n`)
                 })
                 .catch(err => {
-                    fs.appendFileSync(ERROR_FILE, `error on disable ${data.variation_uuid}:-${(err)}\n`);
+                    Errorstream.write(`error on disable ${data.variation_uuid}:-${(err)}\n`);
                     reject(err)
                 })
         })
     }
+    async Create(file_to_update) {
+        return new Promise((resolve, reject) => {
+            let datas
+            try {
+                let category = []
+                for (const key in file_to_update) {
+                    if (key.includes("CATEGORY") && file_to_update[key] !== "") {
+                        category.push(file_to_update[key]);
+                    }
+                }
+                datas = {
+                    "product_name": file_to_update.ITEM_NAME,
+                    "sku": file_to_update.ITEM_NUMBER,
+                    "weight": 200,
+                    "data": {
+                        "price": "0",
+                        "vendor": ["Tridz"],
+                        "artist": file_to_update.ARTIST ? [`${file_to_update.ARTIST}`] : [],
+                        "available": file_to_update.AVAILABLE,
+                        "collections": category,
+                        "favourite": 0,
+                        "image_id": file_to_update.IMAGE_ID,
+                        "image_type": file_to_update.IMAGE_TYPE,
+                        "keyword": file_to_update.KEYWORD ? file_to_update.KEYWORD.split('|').filter(str => str.length > 0) : [],
+                        "max_height": file_to_update.MAX_HEIGHT,
+                        "max_width": file_to_update.MAX_WIDTH,
+                        "orientation": file_to_update.ORIENTATION ? [`${file_to_update.ORIENTATION}`] : [],
+                        "publisher_id": file_to_update.PUBLISHER_ID,
+                        "publisher_name": file_to_update.PUBLISHER_NAME,
+                        "image_url": file_to_update.LOWRES,
+                        "media": "",
+                        "weight": ""
+                    }
+                }
+            }
+            catch (err) {
+                console.log('Error in datas', err)
+            }
+
+            axios.post(CREATE_URL, datas)
+                .then(resp => {
+                    resolve(resp.data)
+                    successDetailStream.write(`success on creating ${file_to_update.ITEM_NUMBER} - ${file_to_update.ITEM_NAME}\n`)
+                })
+                .catch(err => {
+                    Errorstream.write(`error on create ${file_to_update.ITEM_NUMBER}:-${(err)}\n`);
+                    reject(err)
+                })
+        })
+    }
+    async stop() {
+        this.shouldStop = true
+    }
 }
-module.exports = Process;
+module.exports = Progress;
