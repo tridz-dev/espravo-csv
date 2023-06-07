@@ -81,7 +81,7 @@ class Migrate {
                                 )
                                     .then(res => {
                                         let data = res?.data?.rows
-                                        console.log("rows", data)
+                                        // console.log("rows", data)
                                         let single_loop = data.map((single, index) => {
                                             return new Promise((resolve1, reject1) => {
                                                 if (this.progress_ids.includes(single.sku)) {
@@ -281,7 +281,7 @@ class Migrate {
                 //     });
             } else {
                 // else disable product in backend
-                if (single.variation_status === "False") {
+                if (single.variation_status === "False" && single.product_status === "False") {
                     // avoid already disabled product
                     successStream.write(`${ind},${index + 1}\n`);
                     Progressstream.write(`${ind},${index + 1};`)

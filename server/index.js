@@ -134,7 +134,36 @@ app.get("/pause_migrate", (req, res) => {
   res.json("Aborted")
 })
 
-
+app.get("/success", (req, res) => {
+  if (!req) {
+    return res.status(400).send('No file was uploaded.');
+  }
+  else {
+    fs.readFile("success_details.txt", "utf-8", (err, data) => {
+      if (err)
+        console.error("error")
+      else {
+        let datas = data.split("\n")?.filter(x => x !== "")
+        res.json(datas)
+      }
+    })
+  }
+})
+app.get("/error", (req, res) => {
+  if (!req) {
+    return res.status(400).send('No file was uploaded.');
+  }
+  else {
+    fs.readFile("error.txt", "utf-8", (err, data) => {
+      if (err)
+        console.error("error")
+      else {
+        let datas = data.split("\n")?.filter(x => x !== "")
+        res.json(datas)
+      }
+    })
+  }
+})
 app.get("/progress", (req, res) => {
   let loop = fs.readFileSync("looplength.json", "utf-8")
   let csv = fs.readFileSync("csvlength.json", "utf-8")
