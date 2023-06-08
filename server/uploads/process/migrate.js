@@ -88,14 +88,16 @@ class Migrate {
                                                     if (!this.shouldStop) {
                                                         if (find.length) {
                                                             // if found enable product if in disabled or archived state
-                                                            if (single.variation_status === "False" && single.product_status === "False") {
-
+                                                            if ((single.variation_status === "False" && single.product_status === "False") || single.archived == "True") {
+                                                                this.addToQueue({ single, ind, index, resolve1 });
                                                             }
-                                                            this.csv.splice(findIndex, 1);
-                                                            resolve1(`${ind},${index + 1}`);
-                                                            successStream.write(`${ind},${index + 1}\n`);
-                                                            Progressstream.write(`${ind},${index + 1};`)
-                                                            successIdStream.write(`${single.sku}\n`);
+                                                            else {
+                                                                this.csv.splice(findIndex, 1);
+                                                                resolve1(`${ind},${index + 1}`);
+                                                                successStream.write(`${ind},${index + 1}\n`);
+                                                                Progressstream.write(`${ind},${index + 1};`)
+                                                                successIdStream.write(`${single.sku}\n`);
+                                                            }
                                                         }
                                                         else {
                                                             // else disable product in backend
@@ -203,7 +205,27 @@ class Migrate {
         let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku);
         if (!this.shouldStop) {
             if (find.length) {
-            } else {
+                //if found and archived enable product
+                this.Enable(single)
+                    .then(res => {
+                        successStream.write(`${ind},${index + 1}\n`);
+                        successIdStream.write(`${single.sku}\n`);
+                    })
+                    .catch(err => {
+                        failStream.write(`${ind},${index + 1}\n`);
+                    })
+                    .finally(res => {
+                        Progressstream.write(`${ind},${index + 1};`)
+                        this.csv.splice(findIndex, 1);
+                        resolve1(`${ind},${index + 1}`);
+                        // Remove the item from the queue and process the next item
+                        queue.shift();
+                        if (queue.length) {
+                            this.processQueue();
+                        }
+                    });
+            }
+            else {
                 // else disable product in backend
                 this.Disable(single)
                     .then(res => {
@@ -339,10 +361,10 @@ class Migrate {
             axios.post(API_URL + ENABLE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
-                    successDetailStream.write(`success on disable ${data.sku} - ${data.product}\n`)
+                    successDetailStream.write(`success on enable ${data.sku} - ${data.product}\n`)
                 })
                 .catch(err => {
-                    Errorstream.write(`error on disable ${data.variation_uuid}:-${(err)}\n`);
+                    Errorstream.write(`error on enable ${data.variation_uuid}:-${(err)}\n`);
                     reject(err)
                 })
         })
