@@ -230,7 +230,6 @@ class Migrate {
                 this.Disable(single)
                     .then(res => {
                         successStream.write(`${ind},${index + 1}\n`);
-                        Progressstream.write(`${ind},${index + 1};`)
                         successIdStream.write(`${single.sku}\n`);
                         // this.csv.splice(findIndex, 1);
                     })
@@ -238,6 +237,7 @@ class Migrate {
                         failStream.write(`${ind},${index + 1}\n`);
                     })
                     .finally(res => {
+                        Progressstream.write(`${ind},${index + 1};`)
                         resolve1(`${ind},${index + 1}`);
                         // Remove the item from the queue and process the next item
                         queue.shift();
@@ -255,7 +255,6 @@ class Migrate {
             this.Create(data)
                 .then(res => {
                     successStream.write(`${index + 1}\n`);
-                    Progressstream.write(`${index + 1};`)
                     successIdStream.write(`${data.ITEM_NUMBER}\n`);
                     this.csv.splice(index, 1)
                 })
@@ -263,6 +262,7 @@ class Migrate {
                     failStream.write(`${index + 1}\n`);
                 })
                 .finally(res => {
+                    Progressstream.write(`${index + 1};`)
                     // Remove the item from the queue and process the next item
                     create_queue.shift();
                     if (create_queue.length) {
