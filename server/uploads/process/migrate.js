@@ -1,15 +1,10 @@
 const fs = require("fs");
 const axios = require("axios")
-const path = require("path")
-const PROGRESS_FILE = 'progress.txt';
-const FAILED_FILE = 'failed.txt';
-const SUCCESS_FILE = "success.txt"
-const SUCCESS_DETAIL = "success_details.txt"
-const ERROR_FILE = "error.txt"
 const API_URL = "https://esp-be.hzdev.tridz.in"
-const CREATE_URL = 'https://esp-be.hzdev.tridz.in/api/product/create';
-const UPDATE_URL = "https://esp-be.hzdev.tridz.in/api/product/update"
-const DISABLE_URL = "https://esp-be.hzdev.tridz.in/api/product/disable"
+const ENABLE_URL = "/api/product/enable"
+const CREATE_URL = "/api/product/create";
+const UPDATE_URL = "/api/product/update"
+const DISABLE_URL = "/api/product/disable"
 const Progressstream = fs.createWriteStream('progress.txt', { flags: 'w' });
 const failStream = fs.createWriteStream('failed.txt', { flags: 'a' });
 const successStream = fs.createWriteStream('success.txt', { flags: 'a' });
@@ -18,7 +13,6 @@ const successDetailStream = fs.createWriteStream('success_details.txt', { flags:
 const Errorstream = fs.createWriteStream('error.txt', { flags: 'a' });
 const queue = [];
 const create_queue = [];
-const cookie = "SESSec5a92862a48f121bdb88ebb0ed1b008=aXUXr7tf66CJqYUbQz47vsD9MHnqHDYHluygDdLnoeQ"
 class Migrate {
     constructor(name) {
         // Read the contents of the JSON file
@@ -88,11 +82,15 @@ class Migrate {
                                                     resolve1(`${ind},${index + 1}`)
                                                 }
                                                 else {
+                                                    //check product is in CSV
                                                     let find = this.csv.filter(x => x.ITEM_NUMBER == single.sku);
                                                     let findIndex = this.csv.findIndex(x => x.ITEM_NUMBER == single.sku);
                                                     if (!this.shouldStop) {
                                                         if (find.length) {
-                                                            // if found do nothing
+                                                            // if found enable product if in disabled or archived state
+                                                            if (single.variation_status === "False" && single.product_status === "False") {
+
+                                                            }
                                                             this.csv.splice(findIndex, 1);
                                                             resolve1(`${ind},${index + 1}`);
                                                             successStream.write(`${ind},${index + 1}\n`);
@@ -101,7 +99,7 @@ class Migrate {
                                                         }
                                                         else {
                                                             // else disable product in backend
-                                                            if (single.variation_status === "False" && single.product_status === "False") {
+                                                            if ((single.variation_status === "False" && single.product_status === "False") || single.archived == "True") {
                                                                 // avoid already disabled product
                                                                 successStream.write(`${ind},${index + 1}\n`);
                                                                 Progressstream.write(`${ind},${index + 1};`)
@@ -306,7 +304,7 @@ class Migrate {
             catch (err) {
                 console.log('Error in datas update', err)
             }
-            axios.post(UPDATE_URL, datas)
+            axios.post(API_URL + UPDATE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
                     successDetailStream.write(`success on update ${datas.sku} - ${datas.product_name}\n`)
@@ -322,7 +320,23 @@ class Migrate {
             let datas = {
                 "variation_id": data.variation_uuid
             }
-            axios.post(DISABLE_URL, datas)
+            axios.post(API_URL + DISABLE_URL, datas)
+                .then(resp => {
+                    resolve(resp.data)
+                    successDetailStream.write(`success on disable ${data.sku} - ${data.product}\n`)
+                })
+                .catch(err => {
+                    Errorstream.write(`error on disable ${data.variation_uuid}:-${(err)}\n`);
+                    reject(err)
+                })
+        })
+    }
+    async Enable(data) {
+        return new Promise((resolve, reject) => {
+            let datas = {
+                "variation_id": data.variation_uuid
+            }
+            axios.post(API_URL + ENABLE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
                     successDetailStream.write(`success on disable ${data.sku} - ${data.product}\n`)
@@ -372,7 +386,7 @@ class Migrate {
                 console.log('Error in datas', err)
             }
 
-            axios.post(CREATE_URL, datas)
+            axios.post(API_URL + CREATE_URL, datas)
                 .then(resp => {
                     resolve(resp.data)
                     successDetailStream.write(`success on creating ${file_to_update.ITEM_NUMBER} - ${file_to_update.ITEM_NAME}\n`)
