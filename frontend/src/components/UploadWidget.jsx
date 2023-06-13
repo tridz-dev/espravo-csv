@@ -18,7 +18,7 @@ function UploadWidget() {
   const handleFileChange = (e) => {
     let file = e.target.files[0]
     setFile(e.target.files[0]);
-    sessionStorage.setItem("filename", file?.name)
+    localStorage.setItem("filename", file?.name)
     console.log(file);
   };
   useEffect(() => {
@@ -28,20 +28,38 @@ function UploadWidget() {
       if (search == "start") {
         console.log("change on params", "uploaded")
         setUploaded(1)
-        let filename = sessionStorage.getItem("filename")
-        // console.log("session storage", sessionStorage.getItem("filename"))
+        let filename = localStorage.getItem("filename")
+        // console.log("session storage", localStorage.getItem("filename"))
         let file = { name: filename }
         setFile(file)
         Progress_check()
         setMigrated(1)
+        localStorage.setItem("state", `${search}`)
         setMigrateStage(`${search}`)
       }
-      else if (search)
+      else if (search) {
         setMigrateStage(`${search}`)
-      else
+        localStorage.setItem("state", `${search}`)
+      }
+      else {
         setMigrateStage("initial")
+        localStorage.setItem("state", "initial")
+      }
     }
   }, [searchParams])
+  useEffect(() => {
+    let state = localStorage.getItem("state") ? localStorage.getItem("state") : ''
+    if (state === "start") {
+      setUploaded(1)
+      let filename = localStorage.getItem("filename")
+      // console.log("session storage", localStorage.getItem("filename"))
+      let file = { name: filename }
+      setFile(file)
+      Progress_check()
+      setMigrated(1)
+    }
+    console.log("state changes to:", localStorage.getItem("state"))
+  }, [localStorage.getItem("state")])
   const clearFile = () => {
     console.log(file);
     setFile(null)
@@ -93,6 +111,7 @@ function UploadWidget() {
             clearIntervals(intervalId)
             interval = 0
             setMigrateStage("completed")
+            localStorage.setItem("state", "completed")
             setSearchParams({ state: "completed" })
             console.log("migration progress fetch is stoping")
           }
@@ -111,6 +130,7 @@ function UploadWidget() {
     setProgress(0)
     setMigrated(1)
     setMigrateStage("start")
+    localStorage.setItem("state", "start")
     setSearchParams({ state: "start" })
 
     if (detail === "fresh_start") {
@@ -160,11 +180,13 @@ function UploadWidget() {
         console.log("error in", err)
       })
     setSearchParams({ state: "pause" })
+    localStorage.setItem("state", "pause")
     setMigrateStage("pause")
   }
   const RestartMigrate = () => {
     migrateFile()
     setSearchParams({ state: "start" })
+    localStorage.setItem("state", "start")
     setMigrateStage("start")
   }
   const setIntervals = (id) => {
@@ -193,6 +215,7 @@ function UploadWidget() {
         console.log("error in", err)
       })
     setSearchParams({ state: "stop" })
+    localStorage.setItem("state", "stop")
     setMigrateStage("stop")
   }
 
