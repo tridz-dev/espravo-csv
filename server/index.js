@@ -35,7 +35,7 @@ app.get('/disableDuplicates', async (req, res) => {
   if (!req) {
     return res.status(400).send('No file to fetch.');
   }
-  Items.DuplicateDisable()
+  Items.fetchItems()
   res.send("Done fetching")
 })
 const storage = multer.diskStorage({
@@ -143,8 +143,13 @@ app.get("/success", (req, res) => {
       if (err)
         console.error("error")
       else {
-        let datas = data.split("\n")?.filter(x => x !== "")
-        res.json(datas)
+        if (data !== "") {
+          let datas = data.split("\n")?.filter(x => x !== "")
+          res.json(datas)
+        }
+        else {
+          res.json("")
+        }
       }
     })
   }
@@ -158,8 +163,13 @@ app.get("/error", (req, res) => {
       if (err)
         console.error("error")
       else {
-        let datas = data.split("\n")?.filter(x => x !== "")
-        res.json(datas)
+        if (data !== "") {
+          let datas = data.split("\n")?.filter(x => x !== "")
+          res.json(datas)
+        }
+        else {
+          res.json("")
+        }
       }
     })
   }

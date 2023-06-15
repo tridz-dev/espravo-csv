@@ -88,7 +88,7 @@ class Migrate {
                                                     if (!this.shouldStop) {
                                                         if (find.length) {
                                                             // if found enable product if in disabled or archived state
-                                                            if ((single.variation_status === "False" && single.product_status === "False") || single.archived == "True") {
+                                                            if (single.variation_status == "False" || single.archived == "True") {
                                                                 this.addToQueue({ single, ind, index, resolve1 });
                                                             }
                                                             else {
@@ -101,7 +101,7 @@ class Migrate {
                                                         }
                                                         else {
                                                             // else disable product in backend
-                                                            if ((single.variation_status === "False" && single.product_status === "False") || single.archived == "True") {
+                                                            if (single.archived == "True") {
                                                                 // avoid already disabled product
                                                                 successStream.write(`${ind},${index + 1}\n`);
                                                                 Progressstream.write(`${ind},${index + 1};`)
