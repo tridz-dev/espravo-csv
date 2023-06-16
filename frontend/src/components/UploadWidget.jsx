@@ -7,7 +7,7 @@ import Title from "../components/global/page/title";
 // const API_URL = "http://localhost:3001"
 const API_URL = "https://csv-be.tridz.in"
 function UploadWidget() {
-  let [searchParams, setSearchParams] = useSearchParams();
+  // let [searchParams, setSearchParams] = useSearchParams();
   const [file, setFile] = useState(null);
   const [intervalId, setIntervalId] = useState([]);
   const [uploaded, setUploaded] = useState(null);
@@ -21,32 +21,32 @@ function UploadWidget() {
     localStorage.setItem("filename", file?.name)
     console.log(file);
   };
-  useEffect(() => {
-    if (searchParams) {
-      console.log("change on params", searchParams.get("state"))
-      let search = searchParams.get("state")
-      if (search == "start") {
-        console.log("change on params", "uploaded")
-        setUploaded(1)
-        let filename = localStorage.getItem("filename")
-        // console.log("session storage", localStorage.getItem("filename"))
-        let file = { name: filename }
-        setFile(file)
-        Progress_check()
-        setMigrated(1)
-        localStorage.setItem("state", `${search}`)
-        setMigrateStage(`${search}`)
-      }
-      else if (search) {
-        setMigrateStage(`${search}`)
-        localStorage.setItem("state", `${search}`)
-      }
-      else {
-        setMigrateStage("initial")
-        localStorage.setItem("state", "initial")
-      }
-    }
-  }, [searchParams])
+  // useEffect(() => {
+  //   if (searchParams) {
+  //     console.log("change on params", searchParams.get("state"))
+  //     let search = searchParams.get("state")
+  //     if (search == "start") {
+  //       console.log("change on params", "uploaded")
+  //       setUploaded(1)
+  //       let filename = localStorage.getItem("filename")
+  //       // console.log("session storage", localStorage.getItem("filename"))
+  //       let file = { name: filename }
+  //       setFile(file)
+  //       Progress_check()
+  //       setMigrated(1)
+  //       localStorage.setItem("state", `${search}`)
+  //       setMigrateStage(`${search}`)
+  //     }
+  //     else if (search) {
+  //       setMigrateStage(`${search}`)
+  //       localStorage.setItem("state", `${search}`)
+  //     }
+  //     else {
+  //       setMigrateStage("initial")
+  //       localStorage.setItem("state", "initial")
+  //     }
+  //   }
+  // }, [searchParams])
   useEffect(() => {
     let state = localStorage.getItem("state") ? localStorage.getItem("state") : ''
     if (state === "start") {
@@ -58,8 +58,35 @@ function UploadWidget() {
       Progress_check()
       setMigrated(1)
     }
+    else if (state === "completed") {
+      let filename = localStorage.getItem("filename")
+      // console.log("session storage", localStorage.getItem("filename"))
+      let file = { name: filename }
+      setFile(file)
+    }
     console.log("state changes to:", localStorage.getItem("state"))
   }, [localStorage.getItem("state")])
+  useEffect(() => {
+    if (localStorage.getItem("state")) {
+      let state = localStorage.getItem("state") ? localStorage.getItem("state") : ''
+      if (state === "completed") {
+        let filename = localStorage.getItem("filename")
+        // console.log("session storage", localStorage.getItem("filename"))
+        let file = { name: filename }
+        setFile(file)
+        setUploaded(1)
+      }
+      else if (state === "pause") {
+        setUploaded(1)
+        let filename = localStorage.getItem("filename")
+        // console.log("session storage", localStorage.getItem("filename"))
+        let file = { name: filename }
+        setFile(file)
+        setMigrated(1)
+      }
+      setMigrateStage(`${localStorage.getItem("state")}`)
+    }
+  }, [])
   const clearFile = () => {
     console.log(file);
     setFile(null)
@@ -73,7 +100,8 @@ function UploadWidget() {
         setFile(null);
         setUploaded(null);
         console.log(res.data);
-        setSearchParams([])
+        // setSearchParams([])
+        localStorage.setItem("initial")
       })
       .catch((err) => {
         // setUploaded(-1);
@@ -92,6 +120,7 @@ function UploadWidget() {
       .then((res) => {
         setUploaded(1);
         console.log(res.data);
+        localStorage.setItem("state", "initial")
       })
       .catch((err) => {
         alert("something went wrong on uploading")
@@ -112,7 +141,7 @@ function UploadWidget() {
             interval = 0
             setMigrateStage("completed")
             localStorage.setItem("state", "completed")
-            setSearchParams({ state: "completed" })
+            // setSearchParams({ state: "completed" })
             console.log("migration progress fetch is stoping")
           }
           else {
@@ -131,7 +160,7 @@ function UploadWidget() {
     setMigrated(1)
     setMigrateStage("start")
     localStorage.setItem("state", "start")
-    setSearchParams({ state: "start" })
+    // setSearchParams({ state: "start" })
 
     if (detail === "fresh_start") {
       axios.get(API_URL + "/clear_progress")
@@ -179,13 +208,13 @@ function UploadWidget() {
       .catch(err => {
         console.log("error in", err)
       })
-    setSearchParams({ state: "pause" })
+    // setSearchParams({ state: "pause" })
     localStorage.setItem("state", "pause")
     setMigrateStage("pause")
   }
   const RestartMigrate = () => {
     migrateFile()
-    setSearchParams({ state: "start" })
+    // setSearchParams({ state: "start" })
     localStorage.setItem("state", "start")
     setMigrateStage("start")
   }
@@ -214,7 +243,7 @@ function UploadWidget() {
       .catch(err => {
         console.log("error in", err)
       })
-    setSearchParams({ state: "stop" })
+    // setSearchParams({ state: "stop" })
     localStorage.setItem("state", "stop")
     setMigrateStage("stop")
   }
