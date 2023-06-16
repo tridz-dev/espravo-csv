@@ -101,7 +101,7 @@ class Migrate {
                                                         }
                                                         else {
                                                             // else disable product in backend
-                                                            if (single.variation_status == "False" || single.archived == "True") {
+                                                            if (single.archived == "True") {
                                                                 // avoid already disabled product
                                                                 successStream.write(`${ind},${index + 1}\n`);
                                                                 Progressstream.write(`${ind},${index + 1};`)
