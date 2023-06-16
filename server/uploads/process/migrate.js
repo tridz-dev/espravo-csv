@@ -101,7 +101,7 @@ class Migrate {
                                                         }
                                                         else {
                                                             // else disable product in backend
-                                                            if (single.archived == "True") {
+                                                            if (single.variation_status == "False" || single.archived == "True") {
                                                                 // avoid already disabled product
                                                                 successStream.write(`${ind},${index + 1}\n`);
                                                                 Progressstream.write(`${ind},${index + 1};`)
@@ -206,6 +206,7 @@ class Migrate {
         if (!this.shouldStop) {
             if (find.length) {
                 //if found and archived enable product
+                this.csv.splice(findIndex, 1);
                 this.Enable(single)
                     .then(res => {
                         successStream.write(`${ind},${index + 1}\n`);
@@ -216,7 +217,6 @@ class Migrate {
                     })
                     .finally(res => {
                         Progressstream.write(`${ind},${index + 1};`)
-                        this.csv.splice(findIndex, 1);
                         resolve1(`${ind},${index + 1}`);
                         // Remove the item from the queue and process the next item
                         queue.shift();
