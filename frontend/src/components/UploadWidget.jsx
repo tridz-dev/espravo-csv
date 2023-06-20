@@ -12,7 +12,7 @@ function UploadWidget() {
   const [intervalId, setIntervalId] = useState([]);
   const [uploaded, setUploaded] = useState(null);
   const [migrated, setMigrated] = useState(null);
-  const [migrate_stage, setMigrateStage] = useState("initial");
+  const [migrate_stage, setMigrateStage] = useState("");
   const [progress, setProgress] = useState(0);
   let interval
   const handleFileChange = (e) => {
