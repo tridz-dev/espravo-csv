@@ -48,6 +48,7 @@ function UploadWidget() {
   //   }
   // }, [searchParams])
   useEffect(() => {
+    let state = localStorage.getItem("state") ? localStorage.getItem("state") : ""
     if (state === "start") {
       setUploaded(1)
       let filename = localStorage.getItem("filename")
