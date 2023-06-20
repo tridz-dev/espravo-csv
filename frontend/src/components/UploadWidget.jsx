@@ -48,7 +48,6 @@ function UploadWidget() {
   //   }
   // }, [searchParams])
   useEffect(() => {
-    let state = localStorage.getItem("state") ? localStorage.getItem("state") : ''
     if (state === "start") {
       setUploaded(1)
       let filename = localStorage.getItem("filename")
@@ -64,26 +63,18 @@ function UploadWidget() {
       let file = { name: filename }
       setFile(file)
     }
+    else if (state === "pause") {
+      setUploaded(1)
+      let filename = localStorage.getItem("filename")
+      // console.log("session storage", localStorage.getItem("filename"))
+      let file = { name: filename }
+      setFile(file)
+      setMigrated(1)
+    }
     console.log("state changes to:", localStorage.getItem("state"))
   }, [localStorage.getItem("state")])
   useEffect(() => {
     if (localStorage.getItem("state")) {
-      let state = localStorage.getItem("state") ? localStorage.getItem("state") : ''
-      if (state === "completed") {
-        let filename = localStorage.getItem("filename")
-        // console.log("session storage", localStorage.getItem("filename"))
-        let file = { name: filename }
-        setFile(file)
-        setUploaded(1)
-      }
-      else if (state === "pause") {
-        setUploaded(1)
-        let filename = localStorage.getItem("filename")
-        // console.log("session storage", localStorage.getItem("filename"))
-        let file = { name: filename }
-        setFile(file)
-        setMigrated(1)
-      }
       setMigrateStage(`${localStorage.getItem("state")}`)
     }
   }, [])
@@ -197,9 +188,6 @@ function UploadWidget() {
   const callError = () => {
 
   }
-  useEffect(() => {
-    console.log("migration change", migrated)
-  }, [migrated])
   const PauseMigrate = () => {
     axios.get(API_URL + "/pause_migrate")
       .then(res => {
