@@ -60,6 +60,7 @@ function UploadWidget() {
     }
     else if (state === "completed") {
       let filename = localStorage.getItem("filename")
+      setUploaded(1)
       // console.log("session storage", localStorage.getItem("filename"))
       let file = { name: filename }
       setFile(file)
@@ -232,9 +233,13 @@ function UploadWidget() {
       .catch(err => {
         console.log("error in", err)
       })
+      .finally(res => {
+        setUploaded(null)
+        setFile(null)
+        localStorage.setItem("state", "stop")
+        setMigrateStage("stop")
+      })
     // setSearchParams({ state: "stop" })
-    localStorage.setItem("state", "stop")
-    setMigrateStage("stop")
   }
 
   const Upload = () => {
@@ -311,7 +316,7 @@ function UploadWidget() {
                         Abort
                       </button>
                       <div className="w-full h-[30px]" style={{ background: `linear-gradient(90deg, green ${progress}%, lightgrey ${progress}%)` }} />
-                      {progress}% completed
+                      {progress.toFixed(2)}% completed
                     </div>
                     :
                     <div>
@@ -335,12 +340,13 @@ function UploadWidget() {
                   }
                 </p> :
                   migrate_stage === "completed" ? <div className="w-full">
+                    <p className="text-sm font-medium pb-3">Bulk Upload Successfully Completed</p>
                     <button
                       className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                       onClick={() => AbortMigrate()}
-                      title="Finish the process"
+                      title="Finish the process and Continue to Home"
                     >
-                      Done
+                      Continue
                     </button>
                   </div> : ""
                 }
