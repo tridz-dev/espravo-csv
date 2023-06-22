@@ -118,7 +118,7 @@ function UploadWidget() {
       .catch((err) => {
         alert("something went wrong on uploading")
         setUploaded(null);
-        console.error(err);
+        console.error("error on file uplaod", err);
       });
   };
 
@@ -158,13 +158,15 @@ function UploadWidget() {
     if (detail === "fresh_start") {
       axios.get(API_URL + "/clear_progress")
         .then(res => {
-          axios.get(API_URL + "/migrate")
-            .then(res => {
-              Progress_check()
-            })
-            .catch(err => {
-              console.log("error in", err)
-            })
+          setTimeout(() => {
+            axios.get(API_URL + "/migrate")
+              .then(res => {
+                Progress_check()
+              })
+              .catch(err => {
+                console.log("error in", err)
+              })
+          }, 3000)
         })
         .catch(err => {
 
@@ -236,6 +238,7 @@ function UploadWidget() {
       .finally(res => {
         setUploaded(null)
         setFile(null)
+        setProgress(0)
         localStorage.setItem("state", "stop")
         setMigrateStage("stop")
       })
