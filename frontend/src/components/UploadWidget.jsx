@@ -304,15 +304,15 @@ function UploadWidget() {
                 {migrate_stage === "pause" || migrate_stage === "start" ? <p className="progress-bar w-full">
                   {migrate_stage == "pause" ?
                     <div>
-                      <button
+                      {/* <button
                         className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                         onClick={RestartMigrate}
                         title="Migrate data from the uploaded file to the E-commerce backend."
                       >
                         Restart
-                      </button>
+                      </button> */}
                       <button
-                        className="relative inline-flex h-9 items-center  px-4 py-1 text-sm font-medium text-red-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                        className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                         onClick={() => AbortMigrate()}
                         title="Abort data migration"
                       >
@@ -323,15 +323,15 @@ function UploadWidget() {
                     </div>
                     :
                     <div>
-                      <button
+                      {/* <button
                         className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                         onClick={PauseMigrate}
                         title="Migrate data from the uploaded file to the E-commerce backend."
                       >
                         Pause
-                      </button>
+                      </button> */}
                       <button
-                        className="relative inline-flex h-9 items-center  px-4 py-1 text-sm font-medium text-red-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                        className="relative inline-flex h-9 items-center mr-1 border border-slate-900 bg-slate-700 px-4 py-1 text-sm font-medium text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
                         onClick={() => AbortMigrate()}
                         title="Abort data migration"
                       >
