@@ -1,6 +1,6 @@
 const fs = require("fs");
 const axios = require("axios")
-const API_URL = "https://esp-be.hzdev.tridz.in"
+const API_URL = "https://pl-be.espravo.com"
 const ENABLE_URL = "/api/product/enable"
 const CREATE_URL = "/api/product/create";
 const UPDATE_URL = "/api/product/update"
@@ -21,7 +21,7 @@ class Migrate {
         // Parse the JSON data into a JavaScript object
         this.csv = []
         this.progress_ids = []
-        this.base_url = "https://esp-be.hzdev.tridz.in";
+        this.base_url = "https://pl-be.espravo.com";
         this.path = 'products/'
         this.final = []
         this.progress_text = progress

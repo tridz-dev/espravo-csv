@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router-dom"
 import Title from "../components/global/page/title";
 // import Upload from "../pages/Upload";
 // const API_URL = "http://localhost:3001"
-const API_URL = "https://csv-be.tridz.in"
+const API_URL = "http://csv-be.espravo.com"
 function UploadWidget() {
   // let [searchParams, setSearchParams] = useSearchParams();
   const [file, setFile] = useState(null);
