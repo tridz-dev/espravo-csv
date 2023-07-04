@@ -385,7 +385,7 @@ class Migrate {
                     "weight": 200,
                     "data": {
                         "price": "0",
-                        "vendor": ["Tridz"],
+                        "vendor": [],
                         "artist": file_to_update.ARTIST ? [`${file_to_update.ARTIST}`] : [],
                         "available": file_to_update.AVAILABLE,
                         "collections": category,
