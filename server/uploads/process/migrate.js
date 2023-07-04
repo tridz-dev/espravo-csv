@@ -5,7 +5,7 @@ const ENABLE_URL = "/api/product/enable"
 const CREATE_URL = "/api/product/create";
 const UPDATE_URL = "/api/product/update"
 const DISABLE_URL = "/api/product/disable"
-const Progressstream = fs.createWriteStream('progress.txt', { flags: 'w' });
+const Progressstream = fs.createWriteStream('progress.txt', { flags: 'a' });
 const failStream = fs.createWriteStream('failed.txt', { flags: 'a' });
 const successStream = fs.createWriteStream('success.txt', { flags: 'a' });
 const successIdStream = fs.createWriteStream("success_id.txt", { flags: "a" })
@@ -385,7 +385,7 @@ class Migrate {
                     "weight": 200,
                     "data": {
                         "price": "0",
-                        "vendor": ["Tridz"],
+                        "vendor": [],
                         "artist": file_to_update.ARTIST ? [`${file_to_update.ARTIST}`] : [],
                         "available": file_to_update.AVAILABLE,
                         "collections": category,

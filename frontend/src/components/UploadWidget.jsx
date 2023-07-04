@@ -130,12 +130,8 @@ function UploadWidget() {
           console.log("getting migration progress", res.data, "of type", typeof res.data)
           setProgress(res.data)
           if (res.data == 100) {
-            clearIntervals(intervalId)
-            interval = 0
-            setMigrateStage("completed")
-            localStorage.setItem("state", "completed")
-            // setSearchParams({ state: "completed" })
-            console.log("migration progress fetch is stoping")
+            checkComplete()
+            console.log("migration progress fetch is checking if ready to stop")
           }
           else {
 
@@ -146,6 +142,23 @@ function UploadWidget() {
         })
     }, 7000)
     setIntervals(interval)
+  }
+
+  const checkComplete = () => {
+    axios.get(API_URL + "/progress")
+      .then(res => {
+        if (res.data == 100) {
+          clearIntervals(intervalId)
+          interval = 0
+          setMigrateStage("completed")
+          localStorage.setItem("state", "completed")
+          // setSearchParams({ state: "completed" })
+          console.log("migration progress fetch is stoping")
+        }
+      })
+      .catch(err => {
+        console.log("migration progress error", err)
+      })
   }
 
   const migrateFile = (detail) => {
